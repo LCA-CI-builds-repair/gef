@@ -19,9 +19,20 @@ class XinfoCommand(GefUnitTestGeneric):
         self.assertNoException(res)
         self.assertTrue(len(res.splitlines()) >= 7)
 
-    def test_cmd_xinfo_on_class(self):
-        cmd = "xinfo $pc+4"
-        target = debug_target("class")
-        res = gdb_run_silent_cmd(cmd, target=target, before=["b B<TraitA, TraitB>::Run()"])
-        self.assertNoException(res)
-        self.assertIn("Symbol: B<TraitA, TraitB>::Run()+4", res)
+
+def test\_cmd\_xinfo\_on\_class(self):
+# Make sure that the `class.out` file is generated correctly
+# ...
+
+# Use `gdb.parse_and_eval` to evaluate the expression `'info symbol $pc+4'` directly in GDB
+cmd = "xinfo"
+target = debug\_target("class")
+gdb.execute("file class.out")
+gdb.execute("b B<TraitA, TraitB>::Run()")
+gdb.execute("run")
+gdb.execute("xinfo $pc+4")
+res = gdb.selected\_inferior.stdout\_wait()
+
+# Extract the necessary information from the `res` string
+\_\_, _, address, name, _ = gdb.string\_of\_got\_sal\_symbol\_from\_xinfo(res)
+self.assertEqual(name, "B<TraitA, TraitB>::Run()+4")
