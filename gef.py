@@ -300,7 +300,50 @@ def p16(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
     return struct.pack(f"{endian}H", x) if not s else struct.pack(f"{endian:s}h", x)
 
 
-def p32(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
+def p32(x: int, s: bool = False, e: Opfrom typing import Generator, NamedTuple
+
+class Section(NamedTuple):
+    start_addr: str
+    end_addr: str
+    size: str
+    offset: str
+    perms: str
+    objfile: str
+
+def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
+    """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
+
+    if GDB_VERSION < (11, 0):
+        raise AttributeError("Disregarding old format")
+
+    lines = (gdb.execute("from typing import Optional, Tuple
+
+def canary(self) -> Optional[Tuple[int, int]]:
+    """Return a tuple of the canary address and value, read from the canonical
+    location if supported by the architecture. Otherwise, read from the auxiliary
+    vector."""
+    try:
+        canary_location = gef.arch.canary_address()
+        canary = gef.memory.read_integer(canary_location)
+    except Exception:
+        # Fall back to `AT_RANDOM`, which is the original source
+        # of the canary value but not the canonical location
+        return self.original_canary, None
+    return canary, canary_locationppings", to_string=True) or "").splitlines()
+
+    # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
+    # ```
+    # process 61789
+    # Mapped address spaces:
+    #
+    #           Start Addr           End Addr       Size     Offset  Perms  objfile
+    #       0x555555554000     0x555555558000     0x4000        0x0  r--p   /usr/bin/ls
+    #       0x555555558000     0x55555556c000    0x14000     0x4000  r-xp   /usr/bin/ls
+    # [...]
+    # ```
+
+    if len(lines) < 5:
+        raise ValueError("Insufficient lines in the output")= None) -> bytes:
     """Pack one dword respecting the current architecture endianness."""
     endian = e or gef.arch.endianness
     return struct.pack(f"{endian}I", x) if not s else struct.pack(f"{endian:s}i", x)
