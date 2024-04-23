@@ -144,7 +144,12 @@ GEF_MAX_STRING_LENGTH                  = 50
 LIBC_HEAP_MAIN_ARENA_DEFAULT_NAME      = "main_arena"
 ANSI_SPLIT_RE                          = r"(\033\[[\d;]*m)"
 
-LEFT_ARROW                             = " ← "
+LEFT_ARROW                            class PCustomCommand(GenericCommand):
+    """Dump user defined structure.
+    This command attempts to reproduce WinDBG awesome `dt` command for GDB and allows
+    to apply structures (from symbols or custom) directly to an address.
+    Custom structures can be defined in pure Python using ctypes, and should be stored
+    in a specific directory, whose path must be stored in the `pcustom.struct_path` "
 RIGHT_ARROW                            = " → "
 DOWN_ARROW                             = "↳"
 HORIZONTAL_LINE                        = "─"

@@ -1,6 +1,11 @@
 ## Command `gef-remote`
 
-[`target remote`](https://sourceware.org/gdb/onlinedocs/gdb/Remote-Debugging.html#Remote-Debugging)
+[`target remote`](htt$ gdb -ex 'gef config gef.debug 1'
+GEF for linux ready, type `gef' to start, `gef config' to configure
+90 commands loaded and 5 functions added for GDB 10.2 using Python engine 3.8
+gef➤ gef-remote localhost 1234
+[=] [remote] initializing remote session with localhost:1234 under /tmp/tmp8qd0r7iw
+[=] [remote] Installing new objfile handlersourceware.org/gdb/onlinedocs/gdb/Remote-Debugging.html#Remote-Debugging)
 is the traditional GDB way of debugging process or system remotely. However this command by itself
 does a limited job (80's bandwith FTW) to collect more information about the target, making the
 process of debugging more cumbersome. GEF greatly improves that state with the `gef-remote` command.

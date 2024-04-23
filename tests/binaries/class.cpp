@@ -1,6 +1,14 @@
 #include <stdio.h>
 
-class TraitA {};
+    virtual void Run() { printf("I am B\n"); }
+};
+
+int main() {
+    A* a = new B<TraitA, TraitB>();
+    a->Run();
+    delete a;
+    return 0;
+}A {};
 class TraitB {};
 
 class A {

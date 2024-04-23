@@ -1,8 +1,12 @@
 ## Frequently Asked Questions
 
 ## Why use GEF over PEDA?
-
-[PEDA](https://github.com/longld/peda) is a fantastic tool that provides similar commands to make
+root@debian-aarch64:~# gdb -q ./test-bin-aarch64
+GEF ready, type `gef' to start, `gef config' to configure
+53 commands loaded, using Python engine 3.4
+[*] 5 commands could not be loaded, run `gef missing` to know why.
+[+] Configuration from '/root/.gef.rc' restored
+Reading symbols from ./bof-aarch64...(no debugging symbols found)...done.](https://github.com/longld/peda) is a fantastic tool that provides similar commands to make
 the exploitation development process smoother.
 
 However, PEDA suffers from a major drawbacks, which the code is too fundamentally linked to Intel
