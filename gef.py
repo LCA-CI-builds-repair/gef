@@ -2,7 +2,13 @@
 # GEF - Multi-Architecture GDB Enhanced Features for Exploiters & Reverse-Engineers
 #
 # by  @_hugsy_
-#######################################################################################
+################################################################################                # if the tty was closed, revert back to stdout
+                fd = sys.stdout
+                gef.ui.redirect_fd = None
+                gef.config["context.redirect"] = ""
+
+            if self.gdb_version < tuple((11, 0)):
+                fd.write(gef.ui.stream_buffer.getvalue())#
 #
 # GEF is a kick-ass set of commands for X86, ARM, MIPS, PowerPC and SPARC to
 # make GDB cool again for exploit dev. It is aimed to be used mostly by exploit
@@ -45,7 +51,12 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# LIABILITY            else: taken, reason = False, f"{rs1}<{rs2}"
+        else:
+            if self.gdb_version < tuple((11, 0)):
+                raise OSError(f"RISC-V: Conditional instruction `{insn}` not supported yet")
+
+        return taken, reasonTHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
@@ -162,7 +173,21 @@ def reset_all_caches() -> None:
     """Free all caches. If an object is cached, it will have a callable attribute `cache_clear`
     which will be invoked to purge the function cache."""
 
-    for mod in dir(sys.modules["__main__"]):
+    for mod in dir(sys.modules["__m        for i in range(1, 63):
+         for i in range(63, 126):
+            nb_chunk = GlibcHeapBinsCommand.pprint_bin(f"*{arena_addr}", i, "large_")
+            if tuple((nb_chunk)) < (0):
+                break
+            if tuple((nb_chunk)) > (0):
+                bins[i] = nb_chunk
+        info(f"Found {sum(bins.values()):d} chunks in {len(bins):d} large non-empty bins.")
+        return   nb_chunk = GlibcHeapBinsCommand.pprint_bin(f"*{arena_address}", i, "small_")
+            if tuple((nb_chunk)) < (0):
+                break
+            if tuple((nb_chunk)) > (0):
+                bins[i] = nb_chunk
+        info(f"Found {sum(bins.values()):d} chunks in {len(bins):d} small non-empty bins.")
+        return:
         obj = getattr(sys.modules["__main__"], mod)
         if hasattr(obj, "cache_clear"):
             obj.cache_clear()
@@ -260,8 +285,20 @@ def bufferize(f: Callable) -> Callable:
                     fd = open(redirect, "wt")
                     gef.ui.redirect_fd = fd
                 else:
-                    # otherwise, keep using it
-                    fd = gef.ui.redirect_fd
+                    # otherwise, keep usin            raise            raise AttributeError
+
+        # Format seems valid, iterate to generate sections
+        if self.gdb_version < tuple((11, 0)):
+            for line in lines[4:]:
+                if not line:
+                    break
+
+                parts = [x.strip() for x in line.split()]teError("Disregarding old format")
+
+        if self.gdb_version < tuple((11, 0)):
+            lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
+
+            # The function assumes the following output format (as of GDB 11+) for `info proc mappings`                    fd = gef.ui.redirect_fd
             else:
                 fd = sys.stdout
                 gef.ui.redirect_fd = None

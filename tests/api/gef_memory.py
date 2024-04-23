@@ -1,8 +1,20 @@
 """
 `gef.session` test module.
 """
+        if tuple((self.gdb_ver        gdb, gef, root = self._gdb, self._gef, self._conn.root
+        gdb.execute("start")
 
-import pathlib
+        Section = root.eval("Section")
+
+        if tuple((self.gdb_version)) < (11, 0):
+            # expect an exception
+            with pytest.raises(AttributeError):
+                next(gef.memory.parse_gdb_info_proc_maps())
+
+        else:1, 0):
+            pytest.skip(f"Skipping test for version {self.gdb_version} (min 10.0)")
+
+        gdb, root = self._gdb, self._conn.rootort pathlib
 import random
 import pytest
 
