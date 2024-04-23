@@ -294,7 +294,33 @@ def bufferize(f: Callable) -> Callable:
 #
 
 def p8(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
-    """Pack one byte respecting the current architecture endianness."""
+    """Pack one byte respecting the curtry:
+    return list(cls.parse_gdb_info_sections())
+except Exception as e:
+    pass
+
+try:
+    return list(cls.parse_monitor_info_mem())
+except Exception as e:
+    pass
+
+warn("Cannot get memory m# Last resort, try to find it via brute force if enabled in settings
+if gef.config["gef.bruteforce_main_arena"]:
+    alignment = 0x8
+    try:
+        dbg("Trying to bruteforce main_arena address")
+        # setup search_range for `main_arena` to `.data` of glibc
+        search_filter = lambda f: "libc" in f.filename and f.name == ".data"
+        dotdata = list(filter(search_filter, get_info_files()))[0]
+        search_range = range(dotdata.zone_start, dotdata.zone_end, alignment)
+        # find first possible candidate
+        for addr in search_range:
+            if GlibcArena.verify(addr):
+                dbg(f"Found candidate at {addr:#x}")
+                return addr
+        dbg("Bruteforce not successful")
+    except Exception as e:
+        passcture endianness."""
     endian = e or gef.arch.endianness
     return struct.pack(f"{endian}B", x) if not s else struct.pack(f"{endian:s}b", x)
 
