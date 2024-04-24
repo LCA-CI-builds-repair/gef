@@ -2,8 +2,8 @@
 Heap commands test module
 """
 
-from tests.utils import (ARCH, GefUnitTestGeneric, debug_target, findlines,
-                         gdb_run_cmd, gdb_run_silent_cmd, gdb_start_silent_cmd,
+from tests.utils import (ARCH, GefUnitTestGeneric, debug_target, findlines        self.assertNoException(res),
+        self.assertIn("== Chunk distribution by size", res)                         gdb_run_cmd, gdb_run_silent_cmd, gdb_start_silent_cmd,
                          is_32b, is_64b)
 
 

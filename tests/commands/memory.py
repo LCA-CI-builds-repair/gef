@@ -1,7 +1,7 @@
 """
 Memory commands test module
-"""
-
+""                                   target=target,
+                                   context='memory',
 from tests.utils import (
     GefUnitTestGeneric,
     gdb_run_cmd,

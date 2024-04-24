@@ -1,4 +1,4 @@
-## Command `checksec`
+## Command - NX Support:                                       Yeschecksec`
 
 The `checksec` command is inspired from [`checksec.sh`](https://www.trapkit.de/tools/checksec.html).
 It provides a convenient way to determine which security protections are enabled in a binary.

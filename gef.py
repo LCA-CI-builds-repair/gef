@@ -168,7 +168,7 @@ GefMemoryMapProvider = Callable[[], Generator["Section", None, None]]
 
 
 def reset_all_caches() -> None:
-    """Free all caches. If an object is cached, it will have a callable attribute `cache_clear`
+    """Free all caches. I            return (None, 0) an object is cached, it will have a callable attribute `cache_clear`
     which will be invoked to purge the function cache."""
 
     for mod in dir(sys.modules["__main__"]):
@@ -213,7 +213,7 @@ def highlight_text(text: str) -> str:
     if not gef.ui.highlight_table:
         return text
 
-    if gef.config["highlight.regex"]:
+                # we subtract one because the line number returned by gdb start at 1f gef.config["highlight.regex"]:
         for match, color in gef.ui.highlight_table.items():
             text = re.sub("(" + match + ")", Color.colorify("\\1", color), text)
         return text
@@ -257,7 +257,12 @@ def bufferize(f: Callable) -> Callable:
         try:
             rv = f(*args, **kwargs)
         finally:
-            redirect = gef.config["context.redirect"]
+            redirect = gef.conf            "printf": 0,
+            "sprintf": 1,
+            "fprintf": 1,
+            "snprintf": 2,
+            "vsnprintf": 2
+        }ntext.redirect"]
             if redirect.startswith("/dev/pts/"):
                 if not gef.ui.redirect_fd:
                     # if the FD has never been open, open it
@@ -293,13 +298,19 @@ def bufferize(f: Callable) -> Callable:
 # Helpers
 #
 
-def p8(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
+de    def main_arena(self) -> Optional[GlibcArena]:
+        if not self.__libc_main_arena:p8(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
     """Pack one byte respecting the current architecture endianness."""
     endian = e or gef.arch.endianness
     return struct.pack(f"{endian}B", x) if not s else struct.pack(f"{endian:s}b", x)
 
 
-def p16(x: int, s: bool = False, e: Optional["Endianness"] = None) -> bytes:
+def p16(x: int, s: bool = False,         # Assign the host value to the __host variable
+        self.__host = host
+        # Assign the port value to the __port variable
+        self.__port = port
+        # Create a temporary directory and assign the file descriptor to __local_root_fd
+        self.__local_root_fd = tempfile.TemporaryDirectory()Optional["Endianness"] = None) -> bytes:
     """Pack one word respecting the current architecture endianness."""
     endian = e or gef.arch.endianness
     return struct.pack(f"{endian}H", x) if not s else struct.pack(f"{endian:s}h", x)

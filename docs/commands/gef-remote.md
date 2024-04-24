@@ -1,5 +1,5 @@
-## Command `gef-remote`
-
+## Command `gef-remote`GEF-Remote will create $ gdb -ex 'gef config gef.debug 1'
+GEF for linux ready, type `gef' to start, `gef config' to configuremock (limited) environment so that all its most useful features are available.
 [`target remote`](https://sourceware.org/gdb/onlinedocs/gdb/Remote-Debugging.html#Remote-Debugging)
 is the traditional GDB way of debugging process or system remotely. However this command by itself
 does a limited job (80's bandwith FTW) to collect more information about the target, making the

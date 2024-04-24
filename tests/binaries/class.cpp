@@ -1,6 +1,8 @@
 #include <stdio.h>
 
-class TraitA {};
+    public:
+    virtual void Run() { printf("I am B\n"); }
+};ass TraitA {};
 class TraitB {};
 
 class A {

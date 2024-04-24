@@ -1,5 +1,6 @@
 """
-xinfo command test module
+xinfo command test mo        self.assertNoException(res),
+        self.assertIn("Symbol: B<TraitA, TraitB>::Run()+4", res)e
 """
 
 

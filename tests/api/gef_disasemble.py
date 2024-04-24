@@ -1,5 +1,6 @@
 """
-`gef.heap` test module.
+`from tests.utils import ARCH, debug_target, gdb_run_silent_cmd
+from tests.utils import GefUnitTestGeneric.heap` test module.
 """
 
 import pytest
