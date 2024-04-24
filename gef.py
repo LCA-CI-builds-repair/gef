@@ -10,7 +10,37 @@
 # API to assist during the process of dynamic analysis.
 #
 # GEF fully relies on GDB API and other Linux-specific sources of information
-# (such as /proc/<pid>). As a consequence, some of the features might not work
+#     def from_info_mem(cls, perm_str: str) -> "Permission":
+        perm = cls(0)
+        if "r" in perm_str:
+            perm |= Permission.READ
+        if "w" in perm_str:
+            perm |= Permission.WRITE
+        if "x" in perm_str:
+            perm |= Permission.EXECUTE
+        return perm
+
+class Section:
+    """GEF representation of process memory sections."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        self.page_start: int = kwargs.get("page_start", 0)
+        self.page_end: int = kwargs.get("page_end", 0)
+        self.offset: int = kwargs.get("offset", 0)
+        self.permission: Permission = kwargs.get("permission", Permission(0))
+        self.inode: int = kwargs.get("inode", 0)
+        self.path: str = kwargs.get("path", "")
+
+    def is_readable(self) -> bool:
+        return (self.permission & Permission.READ) != 0
+
+    def is_writable(self) -> bool:
+        return (self.permission & Permission.WRITE) != 0
+
+    def is_executable(self) -> bool:
+        return (self.permission & Permission.EXECUTE) != 0
+
+    @propertynsequence, some of the features might not work
 # on custom or hardened systems such as GrSec.
 #
 # Since January 2020, GEF solely support GDB compiled with Python3 and was tested on
@@ -26,9 +56,70 @@
 #
 # To start: in gdb, type `source /path/to/gef.py`
 #
-#######################################################################################
-#
-# gef is distributed under the MIT License (MIT)
+####################################################################################class GenericMeta(type):
+    def __new__(cls, name, bases, dct):
+        dct.setdefault("arch", "")
+        dct.setdefault("mode", "")
+        dct.setdefault("all_registers", ())
+        dct.setdefault("nop_insn", b"")
+        dct.setdefault("retif condition == "eq":
+    if rs1 == rs2:
+        taken, reason = True, f"{rs1}={rs2}"
+    else:
+        taken, reason = False, f"{rs1}!={rs2}"
+elif condition == "ne":
+    if rs1 != rs2:
+        taken, reason = True, f"{rs1}!={rs2}"
+    else:
+        taken, reason = False, f"{rs1}={rs2}"
+elif condition == "lt":
+    if rs1 < rs2:
+        taken, reason = True, f"{rs1}<{rs2}"
+    else:
+        taken, reason = False, f"{rs1}>={rs2}"
+elif condition == "le":
+    if rs1 <= rs2:
+        taken, reason = True, f"{rs1}<={rs2}"
+    else:
+        taken, reason = False, f"{rs1}>{rs2}"
+elif condition == "ge":
+    if rs1 >= rs2:
+        taken, reason = True, f"{rs1}>={rs2}"
+    else:
+        taken, reason = False, f"{rs1}<{rs2}"
+else:
+    raise OSError(f"RISC-V: Conditional instruction `{insn}` not supported yet")
+
+return taken, reason
+        dct.setdefault("flag_register", None)
+        dct.setdefault("instruction_length", None)
+        dct.setdefault("flags_table", {})
+        dct.setdefault("syscall_register", None)
+        dct.setdefault("syscall_instructions", ())
+        dct.setdefault("function_parameters", ())
+        dct.setdefault("_ptrsize", None)
+        dct.setdefault("_endianness", None)
+        dct.setdefault("special_def get_memory_alignment(in_bits: bool = False) -> int:
+    """Try to determine the size of a pointer on this system.
+    First, try to parse it out of the ELF header.
+    Next, use the size of `size_t`.
+    Finally, try the size of $pc.
+    If `in_bits` is set to True, the result is returned in bits, otherwise in
+    bytes."""
+    res = cached_lookup_type("size_t")
+    if res is not None:
+        return res.sizeof if not in_bits else res.sizeof * 8
+
+    try:
+        return gdb.parse_and_eval("$pc").type.sizeof
+    except gdb.error as e:
+        pass
+
+    raise OSError("GEF is running under an unsupported mode. Unable to determine memory alignment.")       dct.setdefault("maps", None)
+        return super(GenericMeta, cls).__new__(cls, name, bases, dct)
+
+class Generic(metaclass=GenericMeta):
+    passibuted under the MIT License (MIT)
 # Copyright (c) 2013-2023 crazy rabbidz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,8 +127,113 @@
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
+# furnished to do so, subject to the from typing import List
+from gef import GenericCommand, only_if_gdb_running, Elf, get_filepath, warn, err, info, gef
+
+class CanaryCommand(GenericCommand):
+    """Shows the canary value of the current process."""
+
+    _cmdline_ = "canary"
+    _syntax_ = _cmdline_
+
+    @only_if_gdb_running
+    def do_invoke(self, argv: List[str]) -> None:
+        self.dont_repeat()
+
+        if not hasattr(gef, "session"):
+            err("GEF session is not available.")
+   import argparse
+from typing import Any, Dict
+from gef import GdbCommand
+
+class CustomCommand(GdbCommand):
+    """Custom command description."""
+
+    def __init__(self) -> None:
+        super().__init__(prefix=True)
+        self["struct_path"] = (str(pathlib.Path(gef.config["gef.tempdir"]) / "structs"), "Path to store/load the structure ctypes files")
+        self["max_depth"] = (4, "Maximum level of recursion supported")
+        self["structure_name"] = ("bold blue", "Color of the structure name")
+        self["structure_type"] = ("bold red", "Color of the attribute type")
+        self["structure_size"] = ("green", "Color of the attribute size")
+        
+    @parse_arguments({"type": str, "address": str}, {})
+    def do_invoke(self, *_, **kwargs: Dict[str, Any]) -> None:
+        args = kwargs["arguments"]
+        if not args["type"]:
+            gdb.execute("pcustom list")
+            return
+
+        _, structname = self.explode_type(args["type"])
+
+        if not args["address"]:
+            gdb.execute(f"pcustom show {structname}")
+            return     has_canary = Elf(get_filepath()).checksec["Canary"]
+        if not has_canary:
+            warn("This binary# Glibc changed the size of the tcache in version 2.30; this fix has
+# been backported inconsistently between distributions. We detect the
+# difference by checking the size of the allocated chunk for the
+# tcache.
+# Minimum usable size of allocated tcache chunk = ?
+#   For new tcache:
+#   TCACHE_MAX_BINS * 2 + TCACHE_MAX_BINS * gef.arch.ptrsize
+#   For old tcache:
+#   TCACHE_MAX_BINS * 1 + TCACHE_MAX_BINS * gef.arch.ptrsize
+new_tcache_min_size = (
+        GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS * 2 +
+        GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS * gef.arch.ptrsize)
+
+if tcache_chunk.usable_size < new_tcache_min_size:
+    tcache_count_size = 1
+    count = class ContextCommand(GenericCommand):
+    """Context command description."""
+
+    def __init__(self) -> None:
+        super().__init__(prefix=True)
+
+        self.menu = {
+            "legend": (self.show_legend, None, None),
+            "regs": (self.context_regs, None, None),
+            "stack": (self.context_stack, None, None),
+            "code": (self.context_code, None, None),
+            "args": (self.context_args, None, None),
+            "memory": (self.context_memory, None, None),
+            "source": (self.context_source, None, None),
+            "trace": (self.context_trace, None, None),
+            "threads": (self.context_threads, None, None),
+            "extra": (self.context_additional_information, None, None),
+        }
+
+        self.instruction_iterator = gef_disassemble
+
+    def post_load(self) -> None:
+        gef_on_continue_hook(self.update_registers, self)
+        gef_on_continue_hook(self.empty_extra_messages, self)(tcache_base + tcache_count_size * i, 1))
+else:
+    tcache_count_size = 2
+    count = u16(gef.memory.read(tcache_base + tcache_count_size * i, 2))th SSP.")
+            return
+
+        res = getattr(gef.session, "canary", None)
+        if not res:
+            err("Failed to get the canary")
+            return
+
+        canary, locat    def iterate_sections(self, argv: List[str]) -> None:
+        for entry in self.sections:
+            if not argv:
+                self.print_entry(entry)
+                continue
+            if argv[0] in entry.path:
+                self.print_entry(entry)
+            elif self.is_integer(argv[0]):
+                addr = int(argv[0], 0)
+                if addr >= entry.page_start and addr < entry.page_end:
+                    self.print_entry(entry)
+
+    def print_entry(self, entry: Section) -> None:
+        # Implementation to print the entry details here      info(f"The canary of process {gef.session.pid} is at {location:#x}, value is {canary:#x}")
+        return
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
@@ -83,8 +279,77 @@ import warnings
 from functools import lru_cache
 from io import StringIO, TextIOWrapper
 from types import ModuleType
-from typing import (Any, ByteString, Callable, Dict, Generator, Iterable,
-                    Iterator, List, Literal, NoReturn, Optional, Sequence, Set, Tuple, Type,
+from tyfrom io import StringIO
+from typing import Generator
+
+class MemoryManager:
+    @staticmethod
+    def parse_info_mem() -> Generator[Section, None, None]:
+        """Get the memory mapping from GDB's command `info mem`. This can be
+        provided by certain gdbserver implementations."""
+        try:
+            return MemoryManager.parse_gdb_info_proc_maps()
+        except:
+            pass
+
+        try:
+            return Mem    def canary(self) -> Optional[Tuple[int, int]]:
+        """Return a tuple of the canary address and value, read from the canonical
+        location if supported by the architecture. Otherwise, read from the auxiliary
+        vector."""
+        try:
+            canary_location = gef.arch.canary_address()
+            canary = gef.memory.read_integer(canary_location)
+        except NotImplementedError:
+            # Fall back to `AT_RANDOM`, which is the original source
+            # of the canary value but not the canonical location
+            return self.original_canary, None
+        return canary, canary_locationarse_procfs_maps()
+        except:
+            pass
+
+        try:
+            return MemoryManager.parse_monitor_info_mem()
+        except:
+            pass
+
+        return None
+
+    @staticmethod
+    def parse_procfs_maps() -> Generator[Section, None, None]:
+        """Get the memory mapping from procfs."""
+        procfs_mapfile = gef.session.maps
+        if not procfs_mapfile:
+            is_remote = gef.session.remote is not None
+            raise FileNotFoundError(f"Missing {'remote ' if is_remote else ''}procfs map file")
+
+        with procfs_mapfile.open("r") as fd:
+            for line in fd:
+                line = line.strip()
+                addr, perm, off, _, rest = line.split(" ", 4)
+                rest = rest.split(" ", 1)
+                if len(rest) == 1:
+                    inode = rest[0]
+                    pathname = ""
+                else:
+                    inode = rest[0]
+                    pathname = rest[1].lstrip()
+
+                addr_start, addr_end = parse_string_range(addr)
+                off = int(off, 16)
+                perm = Permission.from_process_maps(perm)
+                inode = int(inode)
+                yield Section(page_start=addr_start, page_end=addr_end, offset=off, permission=perm, inode=inode, path=pathname)
+
+    @staticmethod
+    def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
+        """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
+        # Implementation here
+
+    @staticmethod
+    def parse_monitor_info_mem() -> Generator[Section, None, None]:
+        """Get the memory mapping from GDB's command `monitor info mem`."""
+        # Implementation hereeturn, Optional, Sequence, Set, Tuple, Type,
                     Union, TYPE_CHECKING)
 from urllib.request import urlopen
 

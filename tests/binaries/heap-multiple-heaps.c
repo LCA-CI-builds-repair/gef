@@ -1,9 +1,35 @@
 /**
  * -*- mode: c -*-
- * -*- coding: utf-8 -*-
- */
+ {
+    void *pointers[NUM_ALLOCS];
+    for (int i = 0; i < NUM_ALLOCS; i++) {
+        pointers[i] = malloc(LESS_THAN_MMAP_THRESHOLD + i * 16);
+        int chunk_distance = (i > 0) ? pointers[i] - pointers[i-1] : EXPECTED_CHUNK_DISTANCE;
+        /* If the chunk_distance is negative, a new heap was created
+         * before the first heap. If greater than the expected distance,
+         * then a new heap was created after the first heap.
+         */
+        if (chunk_distance < 0 ||
+            chunk_distance > (EXPECTED_CHUNK_DISTANCE + i * 16)) {
+            DebugBreak();
+        }
+    }
 
-#include <stdlib.h>
+    (void)pointers;
+    return NULL;
+}
+
+int main(int argc, char** argv, char** envp)
+{
+    void* p1 = malloc(0x10);
+
+    pthread_t thread1;
+    pthread_create(&thread1, NULL, thread, NULL);
+    pthread_join(thread1, NULL);
+
+    (void)p1;
+    return EXIT_SUCCESS;
+}include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
 #include "utils.h"

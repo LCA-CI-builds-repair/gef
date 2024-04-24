@@ -4,7 +4,14 @@
 
 import pathlib
 import random
-import pytest
+impoif self.gdb_version < (11, 0):
+    # expect an exception
+    with pytest.raises(AttributeError):
+        next(gef.memory.parse_gdb_info_proc_maps())
+
+else:
+    for section in gef.memory.parse_gdb_info_proc_maps():
+        # Perform assertions or testing logic heret
 
 from tests.base import RemoteGefUnitTestGeneric
 
