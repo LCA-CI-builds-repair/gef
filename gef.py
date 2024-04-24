@@ -265,8 +265,83 @@ def bufferize(f: Callable) -> Callable:
                     gef.ui.redirect_fd = fd
                 elif redirect != gef.ui.redirect_fd.name:
                     # if the user has changed the redirect setting during runtime, update the state
-                    gef.ui.redirect_fd.close()
-                    fd = open(redirect, "wt")
+                    gef.ui.redirect_fd.c        GefRestoreCommand()
+        return
+
+    def load_extra_plugins(self) -> int:
+        def load_plugin(fpath: pathlib.Path) -> bool:
+            try:
+                dbg(f"Loading '{fpath}'")
+                gdb.execute(f"source {fpath}")
+            except Exception as e:
+                warn(f"Exception while loading {fpath}: {str(e)}")
+                return False
+            return True
+
+        nb_added = -1
+        start_time = time.perf_counter()
+        try:
+            nb_initial = len(__registered_commands__)
+            directories: List[str] = gef.config.get("gef.extra_plugins_dir", "").split(";")
+            for d in directories:
+                d = d.strip()
+                if not d: continue
+                directory = pathlib.Path(d).expanduser()
+                if not directory.is_dir(): continu        try:
+            return list(cls.parse_gdb_info_sections())
+        except Exception as e:
+            warn(f"Error parsing GDB info sections: {str(e)}")
+
+        try:
+            return                pass
+
+        # Set alignment to 0x8 if brute force in main arena is enabled in settings
+        if gef.config["gef.bruteforce_main_arena"]:
+            alignment = 0x8(cls.parse_monitor_info_mem())
+        except Exception as e:
+            warn(f"Error parsing monitor info memory: {str(e)}")
+
+        warn("Cannot get memory map")        sys.path.append(str(directory.absolute()))
+                for entry in directory.iterdir():
+                    if entry.is_dir():
+                        if entry.name in ('gdb', 'gef', '__pycache__'): continue
+                        load_plugin(entry / "__init__.py")
+                    else:
+                   gef.gdb.load_extra_plugins()
+
+    # Setup GDB prompt
+    gdb.prompt_hook = __gef_prompt__
+
+    # Configure GDB events
+    gef_on_continue_hook(continue_handler)
+    gef_on_stop_hook(hook_stop_handler)
+    gef_on_new_hook(new_objfile_handler)
+    gef_on_exit_hook(exit_handler)
+    gef_on_memchanged_hook(memchanged_handler)
+    gef_on_regchanged_hook(regchanged_handler)
+
+    progspace = gdb.current_progspace()
+    if progspace and progspace.filename:
+        # If sourced from a GDB session already attached, force call to new_objfile (see issue #278)
+        new_objfile_handler(None)
+
+    GefTmuxSetup()
+
+    disable_tr_overwrite_setting = "gef.disable_target_remote_overwrite"
+
+    if not gef.config[disable_tr_overwrite_setting]:
+        warnmsg = ("Using `gef-remote` is recommended over `target remote` in most cases. "
+                   "You can disable the overwrite of the `target remote` command by toggling "
+                   f"`{disable_tr_overwrite_setting}` in the config.")
+        hook = f"""
+            define target hookpost-{{}}
+                pi target_remote_posthook()
+                context
+                pi if calling_function() != "connect": warn("{warnmsg}")
+            end
+        """continue
+                        if entry.name == "__init__.py": continue
+                        load_plugin(entry)open(redirect, "wt")
                     gef.ui.redirect_fd = fd
                 else:
                     # otherwise, keep using it

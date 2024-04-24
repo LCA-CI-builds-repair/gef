@@ -1,4 +1,27 @@
-import pytest
+ifrom tests.utils import (
+    GefUnitTestGeneric,
+    gdb_start_silent_cmd,
+    gdb_run_silent_cmd,
+    debug_target,
+    ARCH
+)
+
+class RegressionRegisterOrder(GefUnitTestGeneric):
+    """Tests for regression in the order registers are displayed by `registers` ."""
+
+    def test_registers_order_x86(self):
+        """Test the order of registers displayed on x86 architecture."""
+        debug_target("x86")
+        gdb_start_silent_cmd("start")
+        gdb_run_silent_cmd("c")
+        self.assert_registers_order(["eax", "ebx", "ecx", "edx", "esi", "edi"])
+
+    def test_registers_order_x64(self):
+        """Test the order of registers displayed on x64 architecture."""
+        debug_target("x64")
+        gdb_start_silent_cmd("start")
+        gdb_run_silent_cmd("c")
+        self.assert_registers_order(["rax", "rbx", "rcx", "rdx", "rsi", "rdi"])
 
 from tests.utils import (
     GefUnitTestGeneric,

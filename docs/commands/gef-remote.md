@@ -1,6 +1,19 @@
 ## Command `gef-remote`
 
-[`target remote`](https://sourceware.org/gdb/onlinedocs/gdb/Remote-Debugging.html#Remote-Debugging)
+[`target remote`](https://sourinfo: Consider using "set sysroot" to access files locally and improve file transfer speed.
+Reading /tmp/default.out from remote target...
+Reading symbols from target:/tmp/default.out...
+[=] [remote] in remote_objfile_handler(target:/tmp/default.out))
+[=] [remote] downloading '/tmp/default.out' -> '/tmp/tmp8qd0r7iw/tmp/default.out'
+Reading /lib64/ld-linux-x86-64.so.2 from remote target...
+[=] [remote] in remote_objfile_handler(target:/lib64/ld-linux-x86-64.so.2))
+[=] [remote] downloading '/lib64/ld-linux-x86-64.so.2' -> '/tmp/tmp8qd0r7iw/lib64/ld-linux-x86-64.so.2'
+[=] [remote] in remote_objfile_handler(system-supplied DSO at 0x7ffff7fcd000))
+[*] [remote] skipping 'system-supplied DSO at 0x7ffff7fcd000'
+0x00007ffff7fd0100 in _start () from target:/lib64/ld-linux-x86-64.so.2
+[=] Setting up as remote session
+[=] [remote] downloading '/proc/258932/maps' -> '/tmp/tmp8qd0r7iw/proc/258932/maps'
+[=] [remote] downloading '/proc/258932/environ' -> '/tmp/tmp8qd0r7iw/proc/258932/environ'nlinedocs/gdb/Remote-Debugging.html#Remote-Debugging)
 is the traditional GDB way of debugging process or system remotely. However this command by itself
 does a limited job (80's bandwith FTW) to collect more information about the target, making the
 process of debugging more cumbersome. GEF greatly improves that state with the `gef-remote` command.
