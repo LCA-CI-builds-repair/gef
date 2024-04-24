@@ -13,7 +13,10 @@
 # (such as /proc/<pid>). As a consequence, some of the features might not work
 # on custom or hardened systems such as GrSec.
 #
-# Since January 2020, GEF solely support GDB compiled with Python3 and was tested on
+# Since January 2020, GEF solely support GDB compiled wi        if os.path.exists(path):
+            self.path = path
+        else:
+            raise TypeError("The provided path does not exist.")Python3 and was tested on
 #   * x86-32 & x86-64
 #   * arm v5,v6,v7
 #   * aarch64 (armv8)
@@ -46,8 +49,71 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# OUT OF OR IN CONNECT    @property
+    def ptrsize(self) -> int:
+        if self._ptrsize is not None:
+            return self._ptrsize
+        if is_alive():
+            self._ptrsize = gdb.parse_and_eval("$pc").type.sizeof
+            return self._ptrsize
+        return 4
+
+    def is_conditional_branch(self, insn: Instruction) -> bool:
+        return insn.mnemonic.startswith("b")
+
+    def is_branch_taken(self, insn: Instruction) -> Tuple[bool, str]:
+        def long_to_twos_complement(v: int) -> int:
+            """Convert a python long value to its two's complement."""
+            if is_32bit():
+                if v & 0x80000000:
+                    return v - 0x100000000
+            elif is_64bit():
+                if v & 0x8000000000000000:
+                    return v - 0x10000000000000000
+            else:
+                raise OSError("RISC-V: ELF file is not ELF32 or ELF64. This is not currently supported")
+            return v
+
+        mnemo = insn.mnemonic
+        condition = mnemo[1:]
+
+        if condition.endswith("z"):
+            # r2 is the zero register if we are comparing to 0
+            rs1 = gef.arch.register(insn.operands[0])
+            rs2 = gef.arch.register("$zero")
+            condition = condition[:-1]
+        elif len(insn.operands) > 2:
+            # r2 is populated with the second operand
+            rs1 = gef.arch.register(insn.operands[0])
+            rs2 = gef.arch.register(insn.operands[1])
+        else:
+            raise OSError(f"RISC-V: Failed to get rs1 and rs2 for instruction: `{insn}`")
+
+        # If the conditional operation is not unsigned, convert the python long into
+        # its two's complement
+        if not condition.endswith("u"):
+            rs2 = long_to_twos_complement(rs2)
+            rs1 = long_to_twos_complement(rs1)
+        else:
+            condition = condition[:-1]
+
+        if condition == "eq":
+            if rs1 == rs2: taken, reason = True, f"{rs1}={rs2}"
+            else: taken, reason = False, f"{rs1}!={rs2}"
+        elif condition == "ne":
+            if rs1 != rs2: taken, reason = True, f"{rs1}!={rs2}"
+            else: taken, reason = False, f"{rs1}={rs2}"
+        elif condition == "lt":
+            if rs1 < rs2: taken, reason = True, f"{rs1}<{rs2}"
+            else: taken, reason = False, f"{rs1}>={rs2}"
+        elif condition == "le":
+            if rs1 <= rs2: taken, reason = True, f"{rs1}<={rs2}"
+            else: taken, reason = False, f"{rs1}>{rs2}"
+        elif condition == "ge":
+            if rs1 < rs2: taken, reason = True, f"{rs1}>={rs2}"
+            else: taken, reason = False, f"{rs1}<{rs2}"
+        else:
+            raise OSError(f"RISC-V: Conditional instruction `{insn}` not supported yet")RE.
 
 import abc
 import argparse
@@ -224,7 +290,11 @@ def highlight_text(text: str) -> str:
 
 
 def gef_print(*args: str, end="\n", sep=" ", **kwargs: Any) -> None:
-    """Wrapper around print(), using string buffering feature."""
+    """Wrapper around print(), using string buffering f            base = 0
+            try:
+                base = parse_address(mp_->sbrk_base)
+            except Exception as e:
+                print(f"Error parsing address: {e}")ure."""
     parts = [highlight_text(a) for a in args]
     if buffer_output() and gef.ui.stream_buffer and not is_debug():
         gef.ui.stream_buffer.write(sep.join(parts) + end)

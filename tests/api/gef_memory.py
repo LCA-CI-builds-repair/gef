@@ -4,7 +4,51 @@
 
 import pathlib
 import random
-import pytest
+impoimport unittest
+from uniimport unittest
+from unittest.mock import patch
+from gef_memory import *
+    
+class TestGEFMemory(unittest.TestCase):
+
+    @patch('gef_memory.get_memory_page_size', return_value=4096)
+    def test_get_page_size(self, mock_get_memory_page_size):
+        page_size = get_page_size()
+        self.assertEqual(page_size, 4096)
+
+    @patch('gef_memory.read_memory', return_value=b'\x90\x90\x90\x90')
+    def test_read_memory(self, mock_read_memory):
+        data = read_memory(0x400000, 4)
+        self.assertEqual(data, b'\x90\x90\x90\x90')
+
+    @patch('gef_memory.write_memory', return_value=True)
+    def test_write_memory(self, mock_write_memory):
+        result = write_memory(0x400000, b'\x90\x90\x90\x90')
+        self.assertTrue(result)
+
+if __name__ == "__main__":
+    unittest.main()est.mock import patch
+from gef_memory import *
+
+class TestGEFMemory(unittest.TestCase):
+
+    @patch('gef_memory.get_memory_page_size', return_value=4096)
+    def test_get_page_size(self, mock_get_memory_page_size):
+        page_size = get_page_size()
+        self.assertEqual(page_size, 4096)
+
+    @patch('gef_memory.read_memory', return_value=b'\x90\x90\x90\x90')
+    def test_read_memory(self, mock_read_memory):
+        data = read_memory(0x400000, 4)
+        self.assertEqual(data, b'\x90\x90\x90\x90')
+
+    @patch('gef_memory.write_memory', return_value=True)
+    def test_write_memory(self, mock_write_memory):
+        result = write_memory(0x400000, b'\x90\x90\x90\x90')
+        self.assertTrue(result)
+
+if __name__ == "__main__":
+    unittest.main()t pytest
 
 from tests.base import RemoteGefUnitTestGeneric
 
