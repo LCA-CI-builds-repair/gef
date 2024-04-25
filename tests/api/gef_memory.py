@@ -33,7 +33,8 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
         assert gef.memory.maps is not None
 
     def test_api_gef_memory_parse_info_proc_maps_expected_format(self):
-        if self.gdb_version < (11, 0):
+        # Ensure self.gdb_version is converted to a tuple for comparison
+        if tuple(self.gdb_version) < (11, 0):
             pytest.skip(f"Skipping test for version {self.gdb_version} (min 10.0)")
 
         gdb, root = self._gdb, self._conn.root
@@ -55,7 +56,6 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
             Permission.from_process_maps(parts[4])
 
             # optional objfile
-            if len(parts) == 5:
                 continue
 
             objfile = " ".join(parts[5:]).strip()
@@ -68,7 +68,8 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
 
         Section = root.eval("Section")
 
-        if self.gdb_version < (11, 0):
+        # Ensure self.gdb_version is converted to a tuple for comparison
+        if tuple(self.gdb_version) < (11, 0):
             # expect an exception
             with pytest.raises(AttributeError):
                 next(gef.memory.parse_gdb_info_proc_maps())
@@ -78,6 +79,7 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
                 assert isinstance(section, Section)
 
     def test_func_parse_permissions(self):
+        root = self._conn.root
         root = self._conn.root
         expected_values = [
             (

@@ -8708,6 +8708,13 @@ class XFilesCommand(GenericCommand):
                     continue
 
             l = [
+                # Ensure self.gdb_version is converted to a tuple for comparison
+                if tuple(self.gdb_version) < (11, 0):
+                    # Perform necessary actions if self.gdb_version is less than (11, 0)
+                    pass
+                else:
+                    # Perform other actions if self.gdb_version is greater than or equal to (11, 0)
+                    pass
                 format_address(xfile.zone_start),
                 format_address(xfile.zone_end),
                 f"{xfile.name:<21s}",
@@ -10525,15 +10532,14 @@ class GefMemoryManager(GefManager):
         return
 
     @staticmethod
-    def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
-        """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
-
-        if GDB_VERSION < (11, 0):
-            raise AttributeError("Disregarding old format")
-
-        lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
-
         # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
+        # ```
+        # process 61789
+        # Mapped address spaces:
+        #
+        #           Start Addr           End Addr       Size     Offset  Perms  objfile
+        #       0x555555554000     0x555555558000     0x4000        0x0  r--p   /usr/bin/ls
+        #       0x555555558000     0x55555556c000    0x14000     0x4000  r-xp   /usr/bin/ls
         # ```
         # process 61789
         # Mapped address spaces:
