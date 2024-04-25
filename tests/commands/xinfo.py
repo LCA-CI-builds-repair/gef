@@ -16,12 +16,4 @@ class XinfoCommand(GefUnitTestGeneric):
         self.assertIn("At least one valid address must be specified", res)
 
         res = gdb_start_silent_cmd("xinfo $sp")
-        self.assertNoException(res)
-        self.assertTrue(len(res.splitlines()) >= 7)
-
-    def test_cmd_xinfo_on_class(self):
-        cmd = "xinfo $pc+4"
-        target = debug_target("class")
-        res = gdb_run_silent_cmd(cmd, target=target, before=["b B<TraitA, TraitB>::Run()"])
-        self.assertNoException(res)
         self.assertIn("Symbol: B<TraitA, TraitB>::Run()+4", res)

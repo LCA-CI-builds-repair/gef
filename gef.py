@@ -5473,15 +5473,7 @@ class ExternalStructureManager:
 
 
 @register
-class PCustomCommand(GenericCommand):
-    """Dump user defined structure.
-    This command attempts to reproduce WinDBG awesome `dt` command for GDB and allows
-    to apply structures (from symbols or custom) directly to an address.
-    Custom structures can be defined in pure Python using ctypes, and should be stored
-    in a specific directory, whose path must be stored in the `pcustom.struct_path`
-    configuration setting."""
-
-    _cmdline_ = "pcustom"
+No changes required in gef.py based on the provided context.
     _syntax_  = f"{_cmdline_} [list|edit <StructureName>|show <StructureName>]|<StructureName> 0xADDRESS]"
 
     def __init__(self) -> None:
@@ -9786,12 +9778,7 @@ class GefCommand(gdb.Command):
                   f"`{Color.colorify('gef config', 'underline pink')}' to configure")
 
         ver = f"{sys.version_info.major:d}.{sys.version_info.minor:d}"
-        gef_print(f"{Color.colorify(str(len(self.commands)), 'bold green')} commands loaded "
-                    f"and {Color.colorify(str(len(self.functions)), 'bold blue')} functions added for "
-                    f"GDB {Color.colorify(gdb.VERSION, 'bold yellow')} in {self.__load_time_ms:.2f}ms "
-                    f"using Python engine {Color.colorify(ver, 'bold red')}")
-
-        nb_missing = len(self.missing)
+No changes required in gef.py based on the provided context.
         if nb_missing:
                 warn(f"{Color.colorify(str(nb_missing), 'bold red')} "
                     f"command{'s' if nb_missing > 1 else ''} could not be loaded, "

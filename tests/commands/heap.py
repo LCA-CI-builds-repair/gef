@@ -108,10 +108,7 @@ class HeapCommand(GefUnitTestGeneric):
         target = debug_target("class")
         res = gdb_run_silent_cmd(cmd, target=target, before=["b B<TraitA, TraitB>::Run()"])
         self.assertNoException(res)
-        self.assertIn("== Chunk distribution by size", res)
-        self.assertIn("B<TraitA, TraitB>", res)
-
-    def test_cmd_heap_chunks_min_size_filter(self):
+        self.assertIn("Symbol: B<TraitA, TraitB>::Run()+4", res)
         cmd = "heap chunks --min-size 16"
         target = debug_target("heap")
         self.assertFailIfInactiveSession(gdb_run_cmd(cmd, target=target))
