@@ -5248,23 +5248,23 @@ class GefThemeCommand(GenericCommand):
 
         if argc == 0:
             for key in self.settings:
-                setting = self[key]
+                setting = self.settings[key]  # Corrected accessing settings dictionary
                 value = Color.colorify(setting, setting)
                 gef_print(f"{key:40s}: {value}")
             return
 
         setting_name = args[0]
-        if not setting_name in self:
+        if setting_name not in self.settings:  # Corrected checking for key in settings dictionary
             err("Invalid key")
             return
 
         if argc == 1:
-            value = self[setting_name]
+            value = self.settings[setting_name]  # Corrected accessing settings dictionary
             gef_print(f"{setting_name:40s}: {Color.colorify(value, value)}")
             return
 
         colors = [color for color in args[1:] if color in Color.colors]
-        self[setting_name] = " ".join(colors)
+        self.settings[setting_name] = " ".join(colors)  # Corrected updating settings dictionary
         return
 
 
