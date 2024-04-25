@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 class TraitA {};
 class TraitB {};
 
@@ -26,4 +25,4 @@ int main() {
     a->Run();
     delete a;
     return 0;
-}
+}
