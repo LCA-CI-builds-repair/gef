@@ -2458,8 +2458,8 @@ class RISCV(Architecture):
         return False
 
     @classmethod
-    def mprotect_asm(cls, addr: int, size: int, perm: Permission) -> str:
-        raise OSError(f"Architecture {cls.arch} not supported yet")
+    def mprotect_asm(self, addr: int, size: int, perm: Permission) -> str:
+        raise OSError(f"Architecture {self.arch} not supported yet")
 
     @property
     def ptrsize(self) -> int:
@@ -6665,10 +6665,10 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
         return list(set(tids) & existing_tids)
 
     @staticmethod
-    def tcachebin(tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
+    def tcachebin(self, tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
         """Return the head chunk in tcache[i] and the number of chunks in the bin."""
-        if i >= GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS:
-            err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS, i))
+        if i >= self.TCACHE_MAX_BINS:
+            err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(self.TCACHE_MAX_BINS, i))
             return None, 0
 
         tcache_chunk = GlibcTcacheChunk(tcache_base)
