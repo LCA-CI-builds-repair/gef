@@ -2459,13 +2459,16 @@ class RISCV(Architecture):
 
     @classmethod
     def mprotect_asm(cls, addr: int, size: int, perm: Permission) -> str:
-        raise OSError(f"Architecture {cls.arch} not supported yet")
+        # Add implementation for mprotect_asm method here
+        pass
 
     @property
     def ptrsize(self) -> int:
         if self._ptrsize is not None:
             return self._ptrsize
         if is_alive():
+            # Add handling for the condition here
+            pass
             self._ptrsize = gdb.parse_and_eval("$pc").type.sizeof
             return self._ptrsize
         return 4
@@ -3736,9 +3739,6 @@ def cached_lookup_type(_type: str) -> Optional[gdb.Type]:
 
 
 @deprecated("Use `gef.arch.ptrsize` instead")
-def get_memory_alignment(in_bits: bool = False) -> int:
-    """Try to determine the size of a pointer on this system.
-    First, try to parse it out of the ELF header.
     Next, use the size of `size_t`.
     Finally, try the size of $pc.
     If `in_bits` is set to True, the result is returned in bits, otherwise in
@@ -3746,6 +3746,9 @@ def get_memory_alignment(in_bits: bool = False) -> int:
     res = cached_lookup_type("size_t")
     if res is not None:
         return res.sizeof if not in_bits else res.sizeof * 8
+
+    try:
+        return gdb.parse_and_eval("$pc").type.sizeof
 
     try:
         return gdb.parse_and_eval("$pc").type.sizeof
@@ -4250,8 +4253,8 @@ class TraceMallocRetBreakpoint(gdb.FinishBreakpoint):
                 current_chunk_size = current_chunk.size
 
                 if chunk_addr <= loc < chunk_addr + current_chunk_size:
-                    offset = loc - chunk_addr - 2*align
-                    if offset < 0: continue # false positive, discard
+msg.append(Color.colorify("Heap-Analysis", "yellow bold"))
+msg.append("Possible heap overlap detected")
 
                     msg.append(Color.colorify("Heap-Analysis", "yellow bold"))
                     msg.append("Possible heap overlap detected")
@@ -5191,86 +5194,85 @@ class ProcessStatusCommand(GenericCommand):
             0x06: "TCP_TIME_WAIT",
             0x07: "TCP_CLOSE",
             0x08: "TCP_CLOSE_WAIT",
-            0x09: "TCP_LAST_ACK",
-            0x0A: "TCP_LISTEN",
-            0x0B: "TCP_CLOSING",
-            0x0C: "TCP_NEW_SYN_RECV",
-        }
+0x0C: "TCP_NEW_SYN_RECV",
+}
 
-        udp_states_str = {
-            0x07: "UDP_LISTEN",
-        }
+udp_states_str = {
+0x07: "UDP_LISTEN",
+}
 
-        info("Network Connections")
-        pid = gef.session.pid
-        sockets = self.list_sockets(pid)
-        if not sockets:
-            gef_print("\tNo open connections")
-            return
+info("Network Connections")
+pid = gef.session.pid
+sockets = self.list_sockets(pid)
+if not sockets:
+    gef_print("\tNo open connections")
+    return
 
-        entries = dict()
-        with open(f"/proc/{pid:d}/net/tcp", "r") as tcp:
-            entries["TCP"] = [x.split() for x in tcp.readlines()[1:]]
-        with open(f"/proc/{pid:d}/net/udp", "r") as udp:
-            entries["UDP"] = [x.split() for x in udp.readlines()[1:]]
+entries = dict()
+with open(f"/proc/{pid:d}/net/tcp", "r") as tcp:
+    entries["TCP"] = [x.split() for x in tcp.readlines()[1:]]
+with open(f"/proc/{pid:d}/net/udp", "r") as udp:
+    entries["UDP"] = [x.split() for x in udp.readlines()[1:]]
 
-        for proto in entries:
-            for entry in entries[proto]:
-                local, remote, state = entry[1:4]
-                inode = int(entry[9])
-                if inode in sockets:
-                    local = self.parse_ip_port(local)
-                    remote = self.parse_ip_port(remote)
-                    state = int(state, 16)
-                    state_str = tcp_states_str[state] if proto == "TCP" else udp_states_str[state]
+for proto in entries:
+    for entry in entries[proto]:
+        local, remote, state = entry[1:4]
+        inode = int(entry[9])
+        if inode in sockets:
+            local = self.parse_ip_port(local)
+            remote = self.parse_ip_port(remote)
+            state = int(state, 16)
+            state_str = tcp_states_str[state] if proto == "TCP" else udp_states_str[state]
+
+            gef_print(f"\t{local[0]}:{local[1]} {RIGHT_ARROW} {remote[0]}:{remote[1]} ({state_str})")
+return
 
                     gef_print(f"\t{local[0]}:{local[1]} {RIGHT_ARROW} {remote[0]}:{remote[1]} ({state_str})")
         return
 
 
-@register
-class GefThemeCommand(GenericCommand):
-    """Customize GEF appearance."""
+_cmdline_ = "theme"
+_syntax_ = f"{_cmdline_} [KEY [VALUE]]"
 
-    _cmdline_ = "theme"
-    _syntax_ = f"{_cmdline_} [KEY [VALUE]]"
+def __init__(self) -> None:
+    super().__init__(self._cmdline_)
+    self["context_title_line"] = ("gray", "Color of the borders in context window")
+    self["context_title_message"] = ("cyan", "Color of the title in context window")
+    self["default_title_line"] = ("gray", "Default color of borders")
+    self["default_title_message"] = ("cyan", "Default color of title")
+    self["table_heading"] = ("blue", "Color of the column headings to tables (e.g. vmmap)")
+    self["old_context"] = ("gray", "Color to use to show things such as code that is not immediately relevant")
+    self["disassemble_current_instruction"] = ("green", "Color to use to highlight the current $pc when disassembling")
+    self["dereference_string"] = ("yellow", "Color of dereferenced string")
+    self["dereference_code"] = ("gray", "Color of dereferenced code")
+    self["dereference_base_address"] = ("cyan", "Color of dereferenced address")
+    self["dereference_register_value"] = ("bold blue", "Color of dereferenced register")
+    self["registers_register_name"] = ("blue", "Color of the register name in the register window")
+    self["registers_value_changed"] = ("bold red", "Color of the changed register in the register window")
+    self["address_stack"] = ("pink", "Color to use when a stack address is found")
+    self["address_heap"] = ("green", "Color to use when a heap address is found")
+    self["address_code"] = ("red", "Color to use when a code address is found")
+    self["source_current_line"] = ("green", "Color to use for the current code line in the source window")
+    return
 
-    def __init__(self) -> None:
-        super().__init__(self._cmdline_)
-        self["context_title_line"] = ("gray", "Color of the borders in context window")
-        self["context_title_message"] = ("cyan", "Color of the title in context window")
-        self["default_title_line"] = ("gray", "Default color of borders")
-        self["default_title_message"] = ("cyan", "Default color of title")
-        self["table_heading"] = ("blue", "Color of the column headings to tables (e.g. vmmap)")
-        self["old_context"] = ("gray", "Color to use to show things such as code that is not immediately relevant")
-        self["disassemble_current_instruction"] = ("green", "Color to use to highlight the current $pc when disassembling")
-        self["dereference_string"] = ("yellow", "Color of dereferenced string")
-        self["dereference_code"] = ("gray", "Color of dereferenced code")
-        self["dereference_base_address"] = ("cyan", "Color of dereferenced address")
-        self["dereference_register_value"] = ("bold blue", "Color of dereferenced register")
-        self["registers_register_name"] = ("blue", "Color of the register name in the register window")
-        self["registers_value_changed"] = ("bold red", "Color of the changed register in the register window")
-        self["address_stack"] = ("pink", "Color to use when a stack address is found")
-        self["address_heap"] = ("green", "Color to use when a heap address is found")
-        self["address_code"] = ("red", "Color to use when a code address is found")
-        self["source_current_line"] = ("green", "Color to use for the current code line in the source window")
+def do_invoke(self, args: List[str]) -> None:
+    self.dont_repeat()
+    argc = len(args)
+
+    if argc == 0:
+        for key in self.settings:
+            setting = self[key]
+            value = Color.colorify(setting, setting)
+            gef_print(f"{key:40s}: {value}")
         return
 
-    def do_invoke(self, args: List[str]) -> None:
-        self.dont_repeat()
-        argc = len(args)
+    setting_name = args[0]
+    if not setting_name in self:
+        err("Invalid key")
+        return
 
-        if argc == 0:
-            for key in self.settings:
-                setting = self[key]
-                value = Color.colorify(setting, setting)
-                gef_print(f"{key:40s}: {value}")
-            return
-
-        setting_name = args[0]
-        if not setting_name in self:
-            err("Invalid key")
-            return
+    if argc == 1:
+        value = self[setting_name]
 
         if argc == 1:
             value = self[setting_name]
@@ -6466,11 +6468,9 @@ class GlibcHeapChunksCommand(GenericCommand):
                 gef_print(line)
 
             ctx.remaining_chunk_count -= 1
+heap_summary.print()
 
-        if ctx.summary:
-            heap_summary.print()
-
-        return True
+return True
 
     def should_process_chunk(self, chunk: GlibcChunk, ctx: GlibcHeapWalkContext) -> bool:
         if chunk.size < ctx.min_size:
@@ -6665,23 +6665,23 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
         return list(set(tids) & existing_tids)
 
     @staticmethod
-    def tcachebin(tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
-        """Return the head chunk in tcache[i] and the number of chunks in the bin."""
-        if i >= GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS:
-            err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS, i))
-            return None, 0
+def tcachebin(tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
+    """Return the head chunk in tcache[i] and the number of chunks in the bin."""
+    if i >= GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS:
+        err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS, i))
+        return None, 0
 
-        tcache_chunk = GlibcTcacheChunk(tcache_base)
+    tcache_chunk = GlibcTcacheChunk(tcache_base)
 
-        # Glibc changed the size of the tcache in version 2.30; this fix has
-        # been backported inconsistently between distributions. We detect the
-        # difference by checking the size of the allocated chunk for the
-        # tcache.
-        # Minimum usable size of allocated tcache chunk = ?
-        #   For new tcache:
-        #   TCACHE_MAX_BINS * _2_ + TCACHE_MAX_BINS * ptrsize
-        #   For old tcache:
-        #   TCACHE_MAX_BINS * _1_ + TCACHE_MAX_BINS * ptrsize
+    # Glibc changed the size of the tcache in version 2.30; this fix has
+    # been backported inconsistently between distributions. We detect the
+    # difference by checking the size of the allocated chunk for the
+    # tcache.
+    # Minimum usable size of allocated tcache chunk = ?
+    #   For new tcache:
+    #   TCACHE_MAX_BINS * _2_ + TCACHE_MAX_BINS * ptrsize
+    #   For old tcache:
+    #   TCACHE_MAX_BINS * _1_ + TCACHE_MAX_BINS * ptrsize
         new_tcache_min_size = (
                 GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS * 2 +
                 GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS * gef.arch.ptrsize)
@@ -7494,10 +7494,10 @@ class ContextCommand(GenericCommand):
                 new_value_type_flag = False
 
             except Exception:
-                new_value = 0
-                new_value_type_flag = False
+new_value = 0
+new_value_type_flag = False
 
-            old_value = self.old_registers.get(reg, 0)
+old_value = self.old_registers.get(reg, 0)
 
             padreg = reg.ljust(widest, " ")
             value = align_address(new_value)
@@ -8625,16 +8625,16 @@ class VMMapCommand(GenericCommand):
         gef_print(Color.colorify("{:<{w}s}{:<{w}s}{:<{w}s}{:<4s} {:s}".format(*headers, w=gef.arch.ptrsize*2+3), color))
 
         for entry in vmmap:
-            if not argv:
-                self.print_entry(entry)
-                continue
-            if argv[0] in entry.path:
-                self.print_entry(entry)
-            elif self.is_integer(argv[0]):
-                addr = int(argv[0], 0)
-                if addr >= entry.page_start and addr < entry.page_end:
-                    self.print_entry(entry)
-        return
+if not argv:
+    self.print_entry(entry)
+    continue
+if argv[0] in entry.path:
+    self.print_entry(entry)
+elif self.is_integer(argv[0]):
+    addr = int(argv[0], 0)
+    if addr >= entry.page_start and addr < entry.page_end:
+        self.print_entry(entry)
+return
 
     def print_entry(self, entry: Section) -> None:
         line_color = ""
@@ -8698,14 +8698,14 @@ class XFilesCommand(GenericCommand):
         gef_print(Color.colorify("{:<{w}s}{:<{w}s}{:<21s} {:s}".format(*headers, w=gef.arch.ptrsize*2+3), color))
 
         filter_by_file = argv[0] if argv and argv[0] else None
-        filter_by_name = argv[1] if len(argv) > 1 and argv[1] else None
+filter_by_name = argv[1] if len(argv) > 1 and argv[1] else None
 
-        for xfile in get_info_files():
-            if filter_by_file:
-                if filter_by_file not in xfile.filename:
-                    continue
-                if filter_by_name and filter_by_name not in xfile.name:
-                    continue
+for xfile in get_info_files():
+    if filter_by_file:
+        if filter_by_file not in xfile.filename:
+            continue
+        if filter_by_name and filter_by_name not in xfile.name:
+            continue
 
             l = [
                 format_address(xfile.zone_start),
@@ -10525,13 +10525,13 @@ class GefMemoryManager(GefManager):
         return
 
     @staticmethod
-    def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
-        """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
+def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
+    """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
 
-        if GDB_VERSION < (11, 0):
-            raise AttributeError("Disregarding old format")
+    if GDB_VERSION < (11, 0):
+        raise AttributeError("Disregarding old format")
 
-        lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
+    lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
 
         # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
         # ```
@@ -10936,14 +10936,14 @@ class GefSessionManager(GefManager):
         return self._pid
 
     @property
-    def file(self) -> Optional[pathlib.Path]:
-        """Return a Path object of the target process."""
-        if gef.session.remote is not None:
-            return gef.session.remote.file
-        fpath: str = gdb.current_progspace().filename
-        if fpath and not self._file:
-            self._file = pathlib.Path(fpath).expanduser()
-        return self._file
+def file(self) -> Optional[pathlib.Path]:
+    """Return a Path object of the target process."""
+    if gef.session.remote is not None:
+        return gef.session.remote.file
+    fpath: str = gdb.current_progspace().filename
+    if fpath and not self._file:
+        self._file = pathlib.Path(fpath).expanduser()
+    return self._file
 
     @property
     def cwd(self) -> Optional[pathlib.Path]:
@@ -10961,29 +10961,29 @@ class GefSessionManager(GefManager):
         return self._pagesize
 
     @property
-    def canary(self) -> Optional[Tuple[int, int]]:
-        """Return a tuple of the canary address and value, read from the canonical
-        location if supported by the architecture. Otherwise, read from the auxiliary
-        vector."""
-        try:
-            canary_location = gef.arch.canary_address()
-            canary = gef.memory.read_integer(canary_location)
-        except NotImplementedError:
+def canary(self) -> Optional[Tuple[int, int]]:
+    """Return a tuple of the canary address and value, read from the canonical
+    location if supported by the architecture. Otherwise, read from the auxiliary
+    vector."""
+    try:
+        canary_location = gef.arch.canary_address()
+        canary = gef.memory.read_integer(canary_location)
+    except NotImplementedError:
             # Fall back to `AT_RANDOM`, which is the original source
             # of the canary value but not the canonical location
             return self.original_canary
         return canary, canary_location
 
     @property
-    def original_canary(self) -> Optional[Tuple[int, int]]:
-        """Return a tuple of the initial canary address and value, read from the
-        auxiliary vector."""
-        auxval = self.auxiliary_vector
-        if not auxval:
-            return None
-        canary_location = auxval["AT_RANDOM"]
-        canary = gef.memory.read_integer(canary_location)
-        canary &= ~0xFF
+def original_canary(self) -> Optional[Tuple[int, int]]:
+    """Return a tuple of the initial canary address and value, read from the
+    auxiliary vector."""
+    auxval = self.auxiliary_vector
+    if not auxval:
+        return None
+    canary_location = auxval["AT_RANDOM"]
+    canary = gef.memory.read_integer(canary_location)
+    canary &= ~0xFF
         return canary, canary_location
 
     @property
@@ -11305,10 +11305,10 @@ if __name__ == "__main__":
         exit(1)
 
     if GDB_VERSION < GDB_MIN_VERSION or PYTHON_VERSION < PYTHON_MIN_VERSION:
-        err("You're using an old version of GDB. GEF will not work correctly. "
-            f"Consider updating to GDB {'.'.join(map(str, GDB_MIN_VERSION))} or higher "
-            f"(with Python {'.'.join(map(str, PYTHON_MIN_VERSION))} or higher).")
-        exit(1)
+err("You're using an old version of GDB. GEF will not work correctly. "
+    f"Consider updating to GDB {'.'.join(map(str, GDB_MIN_VERSION))} or higher "
+    f"(with Python {'.'.join(map(str, PYTHON_MIN_VERSION))} or higher).")
+exit(1)
 
     try:
         pyenv = which("pyenv")
