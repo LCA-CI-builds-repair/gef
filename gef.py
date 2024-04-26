@@ -6665,6 +6665,16 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
         return list(set(tids) & existing_tids)
 
     @staticmethod
+import struct
+from typing import Optional, Tuple
+
+class GlibcHeapTcachebinsCommand:
+    TCACHE_MAX_BINS = 64
+
+class GlibcTcacheChunk:
+    def __init__(self, tcache_base):
+        self.tcache_base = tcache_base
+
     def tcachebin(tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
         """Return the head chunk in tcache[i] and the number of chunks in the bin."""
         if i >= GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS:
@@ -8941,23 +8951,11 @@ class TraceRunCommand(GenericCommand):
 
 
 @register
-class PatternCommand(GenericCommand):
-    """Generate or Search a De Bruijn Sequence of unique substrings of length N
-    and a total length of LENGTH. The default value of N is set to match the
-    currently loaded architecture."""
+import argparse
+from typing import Any, List
 
-    _cmdline_ = "pattern"
-    _syntax_  = f"{_cmdline_} (create|search) ARGS"
-
-    def __init__(self) -> None:
-        super().__init__(prefix=True)
-        self["length"] = (1024, "Default length of a cyclic buffer to generate")
-        return
-
-    def do_invoke(self, _: List[str]) -> None:
-        self.usage()
-        return
-
+class GenericCommand:
+    pass
 
 @register
 class PatternCreateCommand(GenericCommand):
@@ -8968,6 +8966,16 @@ class PatternCreateCommand(GenericCommand):
     _cmdline_ = "pattern create"
     _syntax_  = f"{_cmdline_} [-h] [-n N] [length]"
     _example_ = f"{_cmdline_} 4096"
+
+    @parse_arguments({"length": 0}, {("-n", "--n"): 0})
+    def do_invoke(self, _: List[str], **kwargs: Any) -> None:
+        args: argparse.Namespace = kwargs["arguments"]
+        length = args.length or gef.config["pattern.length"]
+        n = args.n or gef.arch.ptrsize
+        info(f"Generating a pattern of {length:d} bytes (n={n:d})")
+        pattern_str = gef_pystring(generate_cyclic_pattern(length, n))
+        gef_print(pattern_str)
+        ok(f"Saved as '{gef_convenience(pattern_str)}'")
 
     @parse_arguments({"length": 0}, {("-n", "--n"): 0})
     def do_invoke(self, _: List[str], **kwargs: Any) -> None:
@@ -9485,23 +9493,27 @@ class SectionBaseFunction(GenericFunction):
     _example_  = "p $_base(\\\"/usr/lib/ld-2.33.so\\\")"
 
     def do_invoke(self, args: List) -> int:
-        addr = 0
-        try:
-            name = args[0].string()
-        except IndexError:
-            name = gef.session.file.name
-        except gdb.error:
-            err(f"Invalid arg: {args[0]}")
-            return 0
+import sys
+
+class GenericFunction:
+    pass
 
         try:
             base = get_section_base_address(name)
             if base:
                 addr = int(base)
-        except TypeError:
+        except (TypeError, ValueError):
             err(f"Cannot find section {name}")
             return 0
         return addr
+
+
+@register
+class BssBaseFunction(GenericFunction):
+    """Return the current bss base address plus the given offset."""
+    _function_ = "_bss"
+    _syntax_   = f"${_function_}([OFFSET])"
+    _example_ = "deref $_bss(0x20)"
 
 
 @register
@@ -10975,15 +10987,18 @@ class GefSessionManager(GefManager):
         return canary, canary_location
 
     @property
-    def original_canary(self) -> Optional[Tuple[int, int]]:
-        """Return a tuple of the initial canary address and value, read from the
-        auxiliary vector."""
-        auxval = self.auxiliary_vector
-        if not auxval:
+import pathlib
+from typing import Optional
+
+    def maps(self) -> Optional[pathlib.Path]:
+        """Returns the Path to the procfs entry for the memory mapping."""
+        if not is_alive():
             return None
-        canary_location = auxval["AT_RANDOM"]
-        canary = gef.memory.read_integer(canary_location)
-        canary &= ~0xFF
+        if not self._maps:
+            if gef.session.remote is not None:
+                self._maps = gef.session.remote.maps
+            else:
+                self._maps = pathlib.Path(f"/proc/{self.pid}/maps")
         return canary, canary_location
 
     @property
