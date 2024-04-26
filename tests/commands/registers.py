@@ -20,13 +20,13 @@ class RegistersCommand(GefUnitTestGeneric):
         if ARCH in ("aarch64",):
             self.assertIn("$x0", res)
             self.assertIn("$cpsr", res)
-        elif ARCH in ("armv7l", ):
+        elif ARCH == "armv7l":
             self.assertIn("$r0", res)
             self.assertIn("$lr", res)
             self.assertIn("$cpsr", res)
-        elif ARCH in ("x86_64", ):
+        elif ARCH == "x86_64":
             self.assertIn("$rax", res)
             self.assertIn("$eflags", res)
-        elif ARCH in ("i686", ):
+        elif ARCH == "i686":
             self.assertIn("$eax", res)
             self.assertIn("$eflags", res)

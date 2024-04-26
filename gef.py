@@ -2023,7 +2023,7 @@ def gdb_get_location_from_symbol(address: int) -> Optional[Tuple[str, int]]:
     i = sym.find(" in section ")
     sym = sym[:i].split(" + ")
     name, offset = sym[0], 0
-    if len(sym) == 2 and sym[1].isdigit():
+    if len(sym) > 1 and sym[1].isdigit():
         offset = int(sym[1])
     return name, offset
 
@@ -3552,7 +3552,7 @@ def hook_stop_handler(_: "gdb.StopEvent") -> None:
 def new_objfile_handler(evt: Optional["gdb.NewObjFileEvent"]) -> None:
     """GDB event handler for new object file cases."""
     reset_all_caches()
-    path = evt.new_objfile.filename if evt else gdb.current_progspace().filename
+    path = evt.new_objfile.filename if evt.new_objfile else gdb.current_progspace().filename
     try:
         if gef.session.root and path.startswith("target:"):
             # If the process is in a container, replace the "target:" prefix
@@ -7767,7 +7767,7 @@ class ContextCommand(GenericCommand):
             pc = gef.arch.pc
             symtabline = gdb.find_pc_line(pc)
             symtab = symtabline.symtab
-            # we subtract one because the line number returned by gdb start at 1
+            # we subtract one because the line number returned by gdb starts at 1
             line_num = symtabline.line - 1
             if not symtab.is_valid():
                 return
@@ -9685,9 +9685,11 @@ class GefCommand(gdb.Command):
             directories: List[str] = gef.config["gef.extra_plugins_dir"].split(";") or []
             for d in directories:
                 d = d.strip()
-                if not d: continue
+                if not d:
+                    continue
                 directory = pathlib.Path(d).expanduser()
-                if not directory.is_dir(): continue
+                if not directory.is_dir():
+                    continue
                 sys.path.append(str(directory.absolute()))
                 for entry in directory.iterdir():
                     if entry.is_dir():
@@ -9774,15 +9776,13 @@ class GefCommand(gdb.Command):
                         break
 
             except Exception as reason:
-                self.missing[name] = reason
-
         self.__load_time_ms = (time.time()* 1000) - self.__load_time_ms
         return
-
 
     def show_banner(self) -> None:
         gef_print(f"{Color.greenify('GEF')} for {gef.session.os} ready, "
                   f"type `{Color.colorify('gef', 'underline yellow')}' to start, "
+                  f"`{Color.colorify('gef config', 'underline pink')}' to configure")
                   f"`{Color.colorify('gef config', 'underline pink')}' to configure")
 
         ver = f"{sys.version_info.major:d}.{sys.version_info.minor:d}"

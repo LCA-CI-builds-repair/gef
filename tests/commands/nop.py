@@ -296,7 +296,7 @@ class NopCommand(GefUnitTestGeneric):
             target=debug_target("mmap-known-address")
         )
         self.assertNoException(res)
-        self.assertIn("Cannot patch instruction at 0x1337ffc: reaching unmapped area", res)
+        self.assertIn("Cannot patch instruction at 0x1337ffc: reaching unmapped area", res.output)
 
         # We had an off-by-one bug where we couldn't write the last byte before
         # an unmapped area. Make sure that we can now.

@@ -21,9 +21,8 @@ class HighlightCommand(GefUnitTestGeneric):
         ]
 
         res = gdb_start_silent_cmd('', after=cmds, strip_ansi=False)
-
         self.assertNoException(res)
-        self.assertIn(f"{Color.YELLOW.value}41414141{Color.NORMAL.value}", res)
-        self.assertIn(f"{Color.BLUE.value}42424242{Color.NORMAL.value}", res)
-        self.assertIn(f"{Color.GREEN.value}43434343{Color.NORMAL.value}", res)
-        self.assertIn(f"{Color.PINK.value}44444444{Color.NORMAL.value}", res)
+        self.assertIn(f"{Color.YELLOW}41414141{Color.NORMAL}", res)
+        self.assertIn(f"{Color.BLUE}42424242{Color.NORMAL}", res)
+        self.assertIn(f"{Color.GREEN}43434343{Color.NORMAL}", res)
+        self.assertIn(f"{Color.PINK}44444444{Color.NORMAL}", res)

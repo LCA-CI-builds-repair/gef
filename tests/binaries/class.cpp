@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 class TraitA {};
 class TraitB {};
 
