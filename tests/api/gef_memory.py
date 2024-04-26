@@ -69,8 +69,8 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
         Section = root.eval("Section")
 
         if self.gdb_version < (11, 0):
-            # expect an exception
-            with pytest.raises(AttributeError):
+            # expect a StopIteration exception
+            with pytest.raises(StopIteration):
                 next(gef.memory.parse_gdb_info_proc_maps())
 
         else:

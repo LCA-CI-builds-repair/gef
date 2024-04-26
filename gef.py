@@ -6668,9 +6668,8 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
     def tcachebin(tcache_base: int, i: int) -> Tuple[Optional[GlibcTcacheChunk], int]:
         """Return the head chunk in tcache[i] and the number of chunks in the bin."""
         if i >= GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS:
-            err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS, i))
-            return None, 0
-
+            err("Incorrect index value, index value must be between 0 and {}-1, given {}".format(GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS - 1, i))
+            return None, -1
         tcache_chunk = GlibcTcacheChunk(tcache_base)
 
         # Glibc changed the size of the tcache in version 2.30; this fix has
