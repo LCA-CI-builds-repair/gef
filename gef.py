@@ -5211,7 +5211,6 @@ class ProcessStatusCommand(GenericCommand):
                     state_str = tcp_states_str[state] if proto == "TCP" else udp_states_str[state]
 
                     gef_print(f"\t{local[0]}:{local[1]} {RIGHT_ARROW} {remote[0]}:{remote[1]} ({state_str})")
-        return
 
 
 @register
@@ -5221,6 +5220,7 @@ class GefThemeCommand(GenericCommand):
     _cmdline_ = "theme"
     _syntax_ = f"{_cmdline_} [KEY [VALUE]]"
 
+    def __init__(self) -> None:
     def __init__(self) -> None:
         super().__init__(self._cmdline_)
         self["context_title_line"] = ("gray", "Color of the borders in context window")
@@ -5235,7 +5235,6 @@ class GefThemeCommand(GenericCommand):
         self["dereference_base_address"] = ("cyan", "Color of dereferenced address")
         self["dereference_register_value"] = ("bold blue", "Color of dereferenced register")
         self["registers_register_name"] = ("blue", "Color of the register name in the register window")
-        self["registers_value_changed"] = ("bold red", "Color of the changed register in the register window")
         self["address_stack"] = ("pink", "Color to use when a stack address is found")
         self["address_heap"] = ("green", "Color to use when a heap address is found")
         self["address_code"] = ("red", "Color to use when a code address is found")
@@ -10489,6 +10488,7 @@ class GefMemoryManager(GefManager):
             return list(gef.arch.maps())
 
         try:
+        try:
             return list(cls.parse_procfs_maps())
         except:
             pass
@@ -10504,7 +10504,6 @@ class GefMemoryManager(GefManager):
             pass
 
         warn("Cannot get memory map")
-        return None
 
     @staticmethod
     def parse_procfs_maps() -> Generator[Section, None, None]:

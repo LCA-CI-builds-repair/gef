@@ -18,7 +18,9 @@ private:
     int _b;
 
 public:
-    virtual void Run() { printf("I am B\n"); }
+class B {
+public:
+    virtual void Run() override { printf("I am B\n"); }
 };
 
 int main() {
