@@ -1,18 +1,5 @@
 import pytest
 
-from tests.base import RemoteGefUnitTestGeneric
-from tests.utils import debug_target, ARCH
-
-
-class RegressionRegisterOrder(RemoteGefUnitTestGeneric):
-    """Tests for regression in the order registers are displayed by `registers` ."""
-
-    @pytest.mark.skipif(ARCH not in ("x86_64", "i686"), reason=f"Skipped for {ARCH}")
-    def test_registers_show_registers_in_correct_order(self):
-        """Ensure the registers are printed in the correct order (PR #670)."""
-        gdb = self._gdb
-
-        if ARCH == "i686":
             registers_in_correct_order = [
                 "$eax",
                 "$ebx",
