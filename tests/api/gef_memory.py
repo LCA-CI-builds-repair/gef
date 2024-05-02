@@ -73,7 +73,7 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
             with pytest.raises(AttributeError):
                 next(gef.memory.parse_gdb_info_proc_maps())
 
-        else:
+        elif self.gdb_version >= (11, 0):
             for section in gef.memory.parse_gdb_info_proc_maps():
                 assert isinstance(section, Section)
 
