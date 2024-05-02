@@ -24,4 +24,4 @@ class XinfoCommand(GefUnitTestGeneric):
         target = debug_target("class")
         res = gdb_run_silent_cmd(cmd, target=target, before=["b B<TraitA, TraitB>::Run()"])
         self.assertNoException(res)
-        self.assertIn("Symbol: B<TraitA, TraitB>::Run()+4", res)
+        self.assertIn("B<TraitA, TraitB>::Run()+4", res)
