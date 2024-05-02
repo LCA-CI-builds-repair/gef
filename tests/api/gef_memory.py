@@ -38,7 +38,6 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
 
         gdb, root = self._gdb, self._conn.root
         gdb.execute("start")
-
         # Check output format
         lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
         assert len(lines) >= 5
@@ -76,7 +75,6 @@ class GefMemoryApi(RemoteGefUnitTestGeneric):
         else:
             for section in gef.memory.parse_gdb_info_proc_maps():
                 assert isinstance(section, Section)
-
     def test_func_parse_permissions(self):
         root = self._conn.root
         expected_values = [

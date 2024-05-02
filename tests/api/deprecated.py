@@ -14,7 +14,6 @@ class GefFuncDeprecatedApi(RemoteGefUnitTestGeneric):
 
     def test_deprecated_elf_values(self):
         gdb = self._gdb
-
         old_stuff = (
             "Elf.X86_64",
             "Elf.X86_32",

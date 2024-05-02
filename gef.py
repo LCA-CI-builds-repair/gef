@@ -8706,7 +8706,6 @@ class XFilesCommand(GenericCommand):
                     continue
                 if filter_by_name and filter_by_name not in xfile.name:
                     continue
-
             l = [
                 format_address(xfile.zone_start),
                 format_address(xfile.zone_end),
@@ -10532,7 +10531,6 @@ class GefMemoryManager(GefManager):
             raise AttributeError("Disregarding old format")
 
         lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
-
         # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
         # ```
         # process 61789
