@@ -658,6 +658,12 @@ class Permission(enum.Flag):
         return perm
 
 
+from typing import Any
+
+class Permission:
+    def __init__(self, value: int) -> None:
+        self.value: int = value
+
 class Section:
     """GEF representation of process memory sections."""
 
@@ -10528,9 +10534,9 @@ class GefMemoryManager(GefManager):
     def parse_gdb_info_proc_maps() -> Generator[Section, None, None]:
         """Get the memory mapping from GDB's command `maintenance info sections` (limited info)."""
 
-        if GDB_VERSION < (11, 0):
-            raise AttributeError("Disregarding old format")
-
+        # ```
+        # process 61789
+        # Mapped address spaces:
         lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
 
         # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
