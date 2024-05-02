@@ -6646,6 +6646,8 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
     @staticmethod
     def check_thread_ids(tids: List[int]) -> List[int]:
         """Return the subset of tids that are currently valid."""
+from typing import Tuple, Optional
+
         existing_tids = set(t.num for t in gdb.selected_inferior().threads())
         return list(set(tids) & existing_tids)
 
@@ -9680,8 +9682,9 @@ class GefCommand(gdb.Command):
 
         nb_added = -1
         start_time = time.perf_counter()
-        try:
-            nb_inital = len(__registered_commands__)
+import sys
+import pathlib
+
             directories: List[str] = gef.config["gef.extra_plugins_dir"].split(";") or []
             for d in directories:
                 d = d.strip()
@@ -9699,6 +9702,8 @@ class GefCommand(gdb.Command):
                         load_plugin(entry)
 
             nb_added = len(__registered_commands__) - nb_inital
+
+            nb_added = len(__registered_commands__) - nb_inital
             if nb_added > 0:
                 self.load()
                 nb_failed = len(__registered_commands__) - len(self.commands)
@@ -9712,11 +9717,8 @@ class GefCommand(gdb.Command):
 
         except gdb.error as e:
             err(f"failed: {e}")
-        return nb_added
+from typing import Any, Callable, Optional
 
-    @property
-    def loaded_command_names(self) -> Iterable[str]:
-        print("obsolete loaded_command_names")
         return self.commands.keys()
 
     def invoke(self, args: Any, from_tty: bool) -> None:
@@ -9725,6 +9727,11 @@ class GefCommand(gdb.Command):
         return
 
     def add_context_pane(self, pane_name: str, display_pane_function: Callable, pane_title_function: Callable, condition: Optional[Callable]) -> None:
+        """Add a new context pane to ContextCommand."""
+        for _, class_instance in self.commands.items():
+            if isinstance(class_instance, ContextCommand):
+                context = class_instance
+                break
         """Add a new context pane to ContextCommand."""
         for _, class_instance in self.commands.items():
             if isinstance(class_instance, ContextCommand):
