@@ -10532,7 +10532,6 @@ class GefMemoryManager(GefManager):
             raise AttributeError("Disregarding old format")
 
         lines = (gdb.execute("info proc mappings", to_string=True) or "").splitlines()
-
         # The function assumes the following output format (as of GDB 11+) for `info proc mappings`
         # ```
         # process 61789
