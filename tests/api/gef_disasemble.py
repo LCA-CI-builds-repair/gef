@@ -7,7 +7,6 @@ import pytest
 from tests.utils import ARCH, debug_target, gdb_run_silent_cmd
 from tests.utils import GefUnitTestGeneric
 
-
 class GefDisassembleApiFunction(GefUnitTestGeneric):
     """`gef_disassemble` function test module."""
 
