@@ -6687,13 +6687,13 @@ class GlibcHeapTcachebinsCommand(GenericCommand):
                 GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS * gef.arch.ptrsize)
 
         if tcache_chunk.usable_size < new_tcache_min_size:
-            tcache_count_size = 1
-            count = ord(gef.memory.read(tcache_base + tcache_count_size*i, 1))
-        else:
-            tcache_count_size = 2
-            count = u16(gef.memory.read(tcache_base + tcache_count_size*i, 2))
+if tcache_count_size == 1:
+    count = ord(gef.memory.read(tcache_base + tcache_count_size * i, 1))
+else:
+    tcache_count_size = 2
+    count = u16(gef.memory.read(tcache_base + tcache_count_size * i, 2))
 
-        chunk = dereference(tcache_base + tcache_count_size*GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS + i*gef.arch.ptrsize)
+chunk = dereference(tcache_base + tcache_count_size * GlibcHeapTcachebinsCommand.TCACHE_MAX_BINS + i * gef.arch.ptrsize)
         chunk = GlibcTcacheChunk(int(chunk)) if chunk else None
         return chunk, count
 
@@ -9512,13 +9512,10 @@ class BssBaseFunction(GenericFunction):
     _example_ = "deref $_bss(0x20)"
 
     def do_invoke(self, args: List) -> int:
-        base = get_zone_base_address(".bss")
-        if not base:
-            raise gdb.GdbError("BSS not found")
-        return self.arg_to_long(args, 0) + base
-
-
-@register
+base = get_zone_base_address(".bss")
+if not base:
+    raise gdb.GdbError("BSS not found")
+return self.arg_to_long(args, 0) + base
 class GotBaseFunction(GenericFunction):
     """Return the current GOT base address plus the given offset."""
     _function_ = "_got"
@@ -10567,15 +10564,15 @@ class GefMemoryManager(GefManager):
 
     @staticmethod
     def parse_monitor_info_mem() -> Generator[Section, None, None]:
-        """Get the memory mapping from GDB's command `monitor info mem`
-        This can raise an exception, which the memory manager takes to mean
-        that this method does not work to get a map.
-        """
-        stream = StringIO(gdb.execute("monitor info mem", to_string=True))
+from io import StringIO
 
-        for line in stream:
-            try:
-                ranges, off, perms = line.split()
+@staticmethod
+def parse_monitor_info_mem() -> Generator[Section, None, None]:
+    """Get the memory mapping from GDB's command `monitor info mem`
+    This can raise an exception, which the memory manager takes to mean
+    that this method does not work to get a map.
+    """
+    stream = StringIO(gdb.execute("monitor info mem", to_string=True))
                 off = int(off, 16)
                 start, end = [int(s, 16) for s in ranges.split("-")]
             except ValueError:
@@ -10584,14 +10581,14 @@ class GefMemoryManager(GefManager):
             perm = Permission.from_monitor_info_mem(perms)
             yield Section(page_start=start,
                           page_end=end,
-                          offset=off,
-                          permission=perm)
+perm = Permission.from_monitor_info_mem(perms)
+yield Section(page_start=start,
+              page_end=end,
+              offset=off,
+              permission=perm)
 
-    @staticmethod
-    def parse_info_mem():
-        """Get the memory mapping from GDB's command `info mem`. This can be
-        provided by certain gdbserver implementations."""
-        for line in StringIO(gdb.execute("info mem", to_string=True)):
+@staticmethod
+def parse_info_mem():
             # Using memory regions provided by the target.
             # Num Enb Low Addr   High Addr  Attrs
             # 0   y   0x10000000 0x10200000 flash blocksize 0x1000 nocache
@@ -10605,13 +10602,11 @@ class GefMemoryManager(GefManager):
             else:
                 perm = Permission.from_info_mem("rw")
             yield Section(page_start=int(start, 0),
+            else:
+                perm = Permission.from_info_mem("rw")
+            yield Section(page_start=int(start, 0),
                           page_end=int(end, 0),
                           permission=perm)
-
-
-class GefHeapManager(GefManager):
-    """Class managing session heap."""
-    def __init__(self) -> None:
         self.reset_caches()
         return
 
@@ -10639,14 +10634,14 @@ class GefHeapManager(GefManager):
     def main_arena(self, value: GlibcArena) -> None:
         self.__libc_main_arena = value
         return
+    @main_arena.setter
+    def main_arena(self, value: GlibcArena) -> None:
+        self.__libc_main_arena = value
+        return
 
     @staticmethod
     @lru_cache()
-    def find_main_arena_addr() -> int:
-        assert gef.libc.version
-        """A helper function to find the glibc `main_arena` address, either from
-        symbol, from its offset from `__malloc_hook` or by brute force."""
-        # Before anything else, use libc offset from config if available
+    def some_method():
         if gef.config["gef.main_arena_offset"]:
             try:
                 libc_base = get_section_base_address("libc")
@@ -10772,13 +10767,14 @@ class GefHeapManager(GefManager):
 
     def csize2tidx(self, size: int) -> int:
         return abs((size - self.min_chunk_size + self.malloc_alignment - 1)) // self.malloc_alignment
+        # https://elixir.bootlin.com/glibc/glibc-2.26/source/sysdeps/generic/malloc-alignment.h#L22
+        return 2 * gef.arch.ptrsize
+
+    def csize2tidx(self, size: int) -> int:
+        return abs((size - self.min_chunk_size + self.malloc_alignment - 1)) // self.malloc_alignment
 
     def tidx2size(self, idx: int) -> int:
-        return idx * self.malloc_alignment + self.min_chunk_size
-
-    def malloc_align_address(self, address: int) -> int:
-        """Align addresses according to glibc's MALLOC_ALIGNMENT. See also Issue #689 on Github"""
-        malloc_alignment = self.malloc_alignment
+        # Add implementation for tidx2size method here
         ceil = lambda n: int(-1 * n // 1 * -1)
         return malloc_alignment * ceil((address / malloc_alignment))
 
