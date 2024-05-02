@@ -5480,7 +5480,6 @@ class PCustomCommand(GenericCommand):
     Custom structures can be defined in pure Python using ctypes, and should be stored
     in a specific directory, whose path must be stored in the `pcustom.struct_path`
     configuration setting."""
-
     _cmdline_ = "pcustom"
     _syntax_  = f"{_cmdline_} [list|edit <StructureName>|show <StructureName>]|<StructureName> 0xADDRESS]"
 
@@ -9790,7 +9789,6 @@ class GefCommand(gdb.Command):
                     f"and {Color.colorify(str(len(self.functions)), 'bold blue')} functions added for "
                     f"GDB {Color.colorify(gdb.VERSION, 'bold yellow')} in {self.__load_time_ms:.2f}ms "
                     f"using Python engine {Color.colorify(ver, 'bold red')}")
-
         nb_missing = len(self.missing)
         if nb_missing:
                 warn(f"{Color.colorify(str(nb_missing), 'bold red')} "

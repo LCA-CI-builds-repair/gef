@@ -110,7 +110,6 @@ class HeapCommand(GefUnitTestGeneric):
         self.assertNoException(res)
         self.assertIn("== Chunk distribution by size", res)
         self.assertIn("B<TraitA, TraitB>", res)
-
     def test_cmd_heap_chunks_min_size_filter(self):
         cmd = "heap chunks --min-size 16"
         target = debug_target("heap")
