@@ -101,6 +101,8 @@ pi start_rpyc_service({self._port})
         )
 
     def tearDown(self) -> None:
+        # Additional teardown for memory parsing debug
+        print("[DEBUG] Teardown invoked for RemoteGefUnitTestGeneric.")
         if COVERAGE_DIR:
             self._gdb.execute("pi cov.stop()")
             self._gdb.execute("pi cov.save()")
