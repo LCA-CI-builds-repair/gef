@@ -8,6 +8,7 @@ import time
 from typing import Tuple
 import unittest
 
+import pytest
 import rpyc
 
 from .utils import debug_target
