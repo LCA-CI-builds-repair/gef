@@ -44,7 +44,8 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 time.sleep(0.2)
                 continue
 
-        self._gdb = self._conn.root.gdb
+        self._gdb_root = self._conn.root
+        self._gdb = self._gdb_root.gdb
         self._gef = self._conn.root.gef
         return super().setUp()
 
@@ -102,8 +103,8 @@ pi start_rpyc_service({self._port})
 
     def tearDown(self) -> None:
         if COVERAGE_DIR:
-            self._gdb.execute("pi cov.stop()")
-            self._gdb.execute("pi cov.save()")
+            self._gdb_root.execute("pi cov.stop()")
+            self._gdb_root.execute("pi cov.save()")
         self._conn.close()
         self._process.terminate()
         return super().tearDown()
