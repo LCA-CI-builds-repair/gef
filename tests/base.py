@@ -94,7 +94,7 @@ pi start_rpyc_service({self._port})
         ]
         self._process = subprocess.Popen(self._command)
         assert self._process.pid > 0
-        time.sleep(RPYC_SPAWN_TIME)
+        time.sleep(RPYC_SPAWN_TIME * 2)  # Increase the wait time for rpyc service to start
         self._conn = rpyc.connect(
             RPYC_HOST,
             self._port,
