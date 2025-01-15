@@ -66,6 +66,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 "PYTEST_XDIST_WORKER", "gw0"
             )
             self._commands += f"""
+ gef config parse_info_proc_maps.check False
 pi import coverage
 pi cov = coverage.Coverage(data_file="{self._coverage_file}", auto_data=True, branch=True)
 pi cov.start()
