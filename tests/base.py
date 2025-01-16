@@ -66,6 +66,8 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 "PYTEST_XDIST_WORKER", "gw0"
             )
             self._commands += f"""
+gef config gef.retry_limit 3
+gef config gef.max_attempts 3
 pi import coverage
 pi cov = coverage.Coverage(data_file="{self._coverage_file}", auto_data=True, branch=True)
 pi cov.start()
