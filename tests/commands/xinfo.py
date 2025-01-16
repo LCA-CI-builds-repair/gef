@@ -17,7 +17,8 @@ class XinfoCommand(GefUnitTestGeneric):
 
         res = gdb_start_silent_cmd("xinfo $sp")
         self.assertNoException(res)
-        self.assertTrue(len(res.splitlines()) >= 7)
+        self.assertTrue(len(res.splitlines()) >= 8)
+    self.assertin("Symbol: b<traita, traitb>::run()+4", res)
 
     def test_cmd_xinfo_on_class(self):
         cmd = "xinfo $pc+4"
