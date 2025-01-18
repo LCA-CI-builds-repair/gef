@@ -18,7 +18,7 @@ RPYC_GEF_PATH = GEF_PATH.parent / "scripts/remote_debug.py"
 RPYC_HOST = "localhost"
 RPYC_PORT = 18812
 RPYC_SPAWN_TIME = 1.0
-RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 5
+RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 10
 
 
 class RemoteGefUnitTestGeneric(unittest.TestCase):
@@ -28,20 +28,25 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     """
 
     def setUp(self) -> None:
+        self._coverage_file = None
         attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
+        last_error = None
+        
         while True:
             try:
-                #
-                # Port collisions can happen, allow a few retries
-                #
-                self._coverage_file = None
                 self.__setup()
                 break
-            except ConnectionRefusedError:
+            except (ConnectionRefusedError, OSError) as e:
+                last_error = e
                 attempt -= 1
                 if attempt == 0:
-                    raise
-                time.sleep(0.2)
+                    raise RuntimeError(
+                        f"Failed to connect after {RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS} attempts: {last_error}"
+                    ) from last_error
+                
+                # Exponential backoff with some randomness
+                backoff = 0.2 * (RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS - attempt) + random.uniform(0.1, 0.3)
+                time.sleep(backoff)
                 continue
 
         self._gdb = self._conn.root.gdb
@@ -98,6 +103,11 @@ pi start_rpyc_service({self._port})
         self._conn = rpyc.connect(
             RPYC_HOST,
             self._port,
+            keepalive=True,
+            config={
+                "sync_request_timeout": 30,
+                "connect_timeout": 10,
+            },
         )
 
     def tearDown(self) -> None:
