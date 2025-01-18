@@ -17,7 +17,7 @@ GEF_PATH = pathlib.Path(os.getenv("GEF_PATH", "gef.py")).absolute()
 RPYC_GEF_PATH = GEF_PATH.parent / "scripts/remote_debug.py"
 RPYC_HOST = "localhost"
 RPYC_PORT = 18812
-RPYC_SPAWN_TIME = 1.0
+RPYC_SPAWN_TIME = 2.0
 RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 5
 
 
@@ -49,6 +49,16 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
         return super().setUp()
 
     def __setup(self):
+        def connect_with_retry(host, port, max_attempts=RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS):
+            for i in range(max_attempts):
+                try:
+                    return rpyc.connect(host, port)
+                except ConnectionRefusedError:
+                    if i == max_attempts - 1:
+                        raise
+                    time.sleep(0.5 * (2 ** i))  # Exponential backoff
+            return None
+
         if not hasattr(self, "_target"):
             setattr(self, "_target", debug_target("default"))
         else:
@@ -95,10 +105,7 @@ pi start_rpyc_service({self._port})
         self._process = subprocess.Popen(self._command)
         assert self._process.pid > 0
         time.sleep(RPYC_SPAWN_TIME)
-        self._conn = rpyc.connect(
-            RPYC_HOST,
-            self._port,
-        )
+        self._conn = connect_with_retry(RPYC_HOST, self._port)
 
     def tearDown(self) -> None:
         if COVERAGE_DIR:
