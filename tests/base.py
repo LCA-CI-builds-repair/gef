@@ -110,6 +110,9 @@ pi start_rpyc_service({self._port})
 
     @property
     def gdb_version(self) -> Tuple[int, int]:
-        res = [int(d) for d in re.search(r"(\d+)\D(\d+)", self._gdb.VERSION).groups()] 
-        assert len(res) >= 2
+        # More robust version parsing
+        match = re.search(r"^(?:GNU gdb.*?)?(\d+)\.(\d+)", self._gdb.VERSION)
+        if not match:
+            raise ValueError(f"Could not parse GDB version from: {self._gdb.VERSION}")
+        res = [int(d) for d in match.groups()]
         return res
