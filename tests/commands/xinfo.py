@@ -17,7 +17,7 @@ class XinfoCommand(GefUnitTestGeneric):
 
         res = gdb_start_silent_cmd("xinfo $sp")
         self.assertNoException(res)
-        self.assertTrue(len(res.splitlines()) >= 7)
+        self.assertTrue(len(res.splitlines()) >= 8)
 
     def test_cmd_xinfo_on_class(self):
         cmd = "xinfo $pc+4"
