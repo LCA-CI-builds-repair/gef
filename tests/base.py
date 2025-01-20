@@ -5,6 +5,7 @@ import re
 import subprocess
 import tempfile
 import time
+import logging
 from typing import Tuple
 import unittest
 
@@ -29,17 +30,21 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
 
     def setUp(self) -> None:
         attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
+        logger.debug("Setting up remote GEF test case.")
         while True:
             try:
                 #
                 # Port collisions can happen, allow a few retries
                 #
+                logger.debug("Attempting to set up connection...")
                 self._coverage_file = None
                 self.__setup()
                 break
             except ConnectionRefusedError:
                 attempt -= 1
+                logger.warning(f"Connection refused, {attempt} attempts remaining.")
                 if attempt == 0:
+                    logger.error("Maximum connection attempts reached. Failing the test setup.")
                     raise
                 time.sleep(0.2)
                 continue
@@ -104,6 +109,7 @@ pi start_rpyc_service({self._port})
         if COVERAGE_DIR:
             self._gdb.execute("pi cov.stop()")
             self._gdb.execute("pi cov.save()")
+        logger.debug("Tearing down remote GEF test case.")
         self._conn.close()
         self._process.terminate()
         return super().tearDown()
