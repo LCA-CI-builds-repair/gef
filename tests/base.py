@@ -28,7 +28,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
+        attempt = 10  # Increase the number of attempts
         while True:
             try:
                 #
@@ -41,7 +41,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 attempt -= 1
                 if attempt == 0:
                     raise
-                time.sleep(0.2)
+                time.sleep(0.5)  # Increase the sleep time
                 continue
 
         self._gdb = self._conn.root.gdb
