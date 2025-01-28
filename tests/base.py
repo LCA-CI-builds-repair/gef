@@ -30,6 +30,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     def setUp(self) -> None:
         attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
         while True:
+            self._port = random.randint(1025, 65535)
             try:
                 #
                 # Port collisions can happen, allow a few retries
@@ -54,11 +55,6 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
         else:
             assert isinstance(self._target, pathlib.Path)  # type: ignore pylint: disable=E1101
             assert self._target.exists()  # type: ignore pylint: disable=E1101
-
-        #
-        # Select a random tcp port for rpyc
-        #
-        self._port = random.randint(1025, 65535)
         self._commands = ""
 
         if COVERAGE_DIR:
