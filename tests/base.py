@@ -110,6 +110,10 @@ pi start_rpyc_service({self._port})
 
     @property
     def gdb_version(self) -> Tuple[int, int]:
-        res = [int(d) for d in re.search(r"(\d+)\D(\d+)", self._gdb.VERSION).groups()] 
-        assert len(res) >= 2
+        match = re.search(r"(\d+)\D(\d+)", self._gdb.VERSION)
+        if not match:
+            raise RuntimeError(f"Failed to parse GDB version from: {self._gdb.VERSION}")
+        res = [int(d) for d in match.groups()]
+        if len(res) < 2:
+            raise RuntimeError(f"Invalid GDB version format: {self._gdb.VERSION}")
         return res
