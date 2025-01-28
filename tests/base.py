@@ -41,7 +41,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 attempt -= 1
                 if attempt == 0:
                     raise
-                time.sleep(0.2)
+                time.sleep(1.0)  # Increase wait time to 1 second
                 continue
 
         self._gdb = self._conn.root.gdb
@@ -105,7 +105,8 @@ pi start_rpyc_service({self._port})
             self._gdb.execute("pi cov.stop()")
             self._gdb.execute("pi cov.save()")
         self._conn.close()
-        self._process.terminate()
+        if self._process.poll() is None:
+            self._process.terminate()
         return super().tearDown()
 
     @property
