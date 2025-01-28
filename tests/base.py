@@ -76,6 +76,7 @@ source {GEF_PATH}
 gef config gef.debug True
 gef config gef.propagate_debug_exception True
 gef config gef.disable_color True
+gef config gef.extra_verbose True
 source {RPYC_GEF_PATH}
 pi start_rpyc_service({self._port})
 """
