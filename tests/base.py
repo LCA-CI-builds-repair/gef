@@ -22,6 +22,18 @@ RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 5
 
 
 class RemoteGefUnitTestGeneric(unittest.TestCase):
+    def _get_proc_maps(self):
+        """
+        Retrieve the content of /proc/self/maps.
+        This is a workaround for the CI environment where /proc/self/maps may not be available.
+        """
+        try:
+            with open("/proc/self/maps", "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            # Fallback to using /proc/$PID/maps
+            return self._gdb.execute("info proc map", to_string=True)
+
     """
     The base class for GEF test cases. This will create the `rpyc` environment to programmatically interact with
     GDB and GEF in the test.
