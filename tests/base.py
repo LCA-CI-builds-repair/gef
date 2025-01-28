@@ -27,37 +27,32 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     GDB and GEF in the test.
     """
 
+
+    MAX_ATTEMPTS = 3
+
     def setUp(self) -> None:
-        attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
+        attempts = 0
         while True:
             try:
-                #
-                # Port collisions can happen, allow a few retries
-                #
-                self._coverage_file = None
-                self.__setup()
-                break
+                attempts += 1
+                if attempts > self.MAX_ATTEMPTS:
+                    raise RuntimeError(f"Failed to connect to RPyC service after {self.MAX_ATTEMPTS} attempts")
+                self._setup()
+                return super().setUp()
             except ConnectionRefusedError:
-                attempt -= 1
-                if attempt == 0:
-                    raise
                 time.sleep(0.2)
-                continue
+            except Exception as e:
+                print(f"Error during setup: {e}")
+                time.sleep(0.2)
 
-        self._gdb = self._conn.root.gdb
-        self._gef = self._conn.root.gef
-        return super().setUp()
-
-    def __setup(self):
+    def _setup(self):
+        self._coverage_file = None
         if not hasattr(self, "_target"):
             setattr(self, "_target", debug_target("default"))
         else:
             assert isinstance(self._target, pathlib.Path)  # type: ignore pylint: disable=E1101
             assert self._target.exists()  # type: ignore pylint: disable=E1101
 
-        #
-        # Select a random tcp port for rpyc
-        #
         self._port = random.randint(1025, 65535)
         self._commands = ""
 
@@ -92,20 +87,28 @@ pi start_rpyc_service({self._port})
             "--",
             str(self._target.absolute()),  # type: ignore pylint: disable=E1101
         ]
-        self._process = subprocess.Popen(self._command)
+        self._process = subprocess.Popen(self._command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         assert self._process.pid > 0
         time.sleep(RPYC_SPAWN_TIME)
-        self._conn = rpyc.connect(
-            RPYC_HOST,
-            self._port,
-        )
+
+        for _ in range(self.MAX_ATTEMPTS):
+            try:
+                self._conn = rpyc.connect(RPYC_HOST, self._port)
+                self._gdb = self._conn.root.gdb
+                self._gef = self._conn.root.gef
+                return
+            except rpyc.core.exceptions.SocketError:
+                time.sleep(0.2)
+        raise RuntimeError(f"Failed to connect to RPyC service after {self.MAX_ATTEMPTS} attempts")
 
     def tearDown(self) -> None:
         if COVERAGE_DIR:
             self._gdb.execute("pi cov.stop()")
             self._gdb.execute("pi cov.save()")
-        self._conn.close()
-        self._process.terminate()
+        if hasattr(self, "_conn"):
+            self._conn.close()
+        if hasattr(self, "_process"):
+            self._process.terminate()
         return super().tearDown()
 
     @property
