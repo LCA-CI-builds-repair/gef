@@ -51,9 +51,11 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     def __setup(self):
         if not hasattr(self, "_target"):
             setattr(self, "_target", debug_target("default"))
+            print(f"Debug target set to default: {self._target}")
         else:
             assert isinstance(self._target, pathlib.Path)  # type: ignore pylint: disable=E1101
             assert self._target.exists()  # type: ignore pylint: disable=E1101
+            print(f"Debug target exists: {self._target}")
 
         #
         # Select a random tcp port for rpyc
