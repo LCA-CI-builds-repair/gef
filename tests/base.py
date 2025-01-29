@@ -8,6 +8,7 @@ import time
 from typing import Tuple
 import unittest
 
+import pytest
 import rpyc
 
 from .utils import debug_target
@@ -30,7 +31,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
     def setUp(self) -> None:
         attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
         while True:
-            try:
+            if attempt > 0:
                 #
                 # Port collisions can happen, allow a few retries
                 #
@@ -39,10 +40,10 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
                 break
             except ConnectionRefusedError:
                 attempt -= 1
-                if attempt == 0:
-                    raise
                 time.sleep(0.2)
                 continue
+        else:
+            pytest.fail("Could not establish rpyc connection after multiple attempts")
 
         self._gdb = self._conn.root.gdb
         self._gef = self._conn.root.gef
