@@ -62,11 +62,12 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
         self._commands = ""
 
         if COVERAGE_DIR:
-            self._coverage_file = pathlib.Path(COVERAGE_DIR) / os.getenv(
-                "PYTEST_XDIST_WORKER", "gw0"
-            )
+            worker_id = os.getenv("PYTEST_XDIST_WORKER", "gw0")
+            self._coverage_file = pathlib.Path(COVERAGE_DIR) / f".coverage.{worker_id}"
             self._commands += f"""
 pi import coverage
+pi coverage_file = "{self._coverage_file}"
+pi coverage_file = coverage_file.replace("\\\\", "/")  # use forward slashes for Windows paths
 pi cov = coverage.Coverage(data_file="{self._coverage_file}", auto_data=True, branch=True)
 pi cov.start()
 """
