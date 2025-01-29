@@ -18,6 +18,7 @@ RPYC_GEF_PATH = GEF_PATH.parent / "scripts/remote_debug.py"
 RPYC_HOST = "localhost"
 RPYC_PORT = 18812
 RPYC_SPAWN_TIME = 1.0
+GDB_INIT_TIME = 0.5  # Additional time to wait for GDB initialization
 RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 5
 
 
@@ -78,6 +79,15 @@ gef config gef.propagate_debug_exception True
 gef config gef.disable_color True
 source {RPYC_GEF_PATH}
 pi start_rpyc_service({self._port})
+start
+"""
+
+        self._verify_commands = """
+pi import time
+pi time.sleep(0.1)
+info proc mappings
+pi import os
+pi assert os.path.exists("/proc/self/maps"), "Process maps not accessible"
 """
 
         self._initfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
@@ -99,6 +109,13 @@ pi start_rpyc_service({self._port})
             RPYC_HOST,
             self._port,
         )
+        
+        # Allow time for GDB to fully initialize and verify process state
+        time.sleep(GDB_INIT_TIME)
+        try:
+            self._gdb.execute(self._verify_commands)
+        except Exception as e:
+            raise RuntimeError("Failed to verify GDB initialization") from e
 
     def tearDown(self) -> None:
         if COVERAGE_DIR:
