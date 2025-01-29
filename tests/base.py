@@ -73,10 +73,11 @@ pi cov.start()
 
         self._commands += f"""
 source {GEF_PATH}
-gef config gef.debug True
-gef config gef.propagate_debug_exception True
-gef config gef.disable_color True
+gef config gef.debug False
+gef config gef.propagate_debug_exception False
+gef config gef.disable_color False
 source {RPYC_GEF_PATH}
+set startup-with-shell off
 pi start_rpyc_service({self._port})
 """
 
