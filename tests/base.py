@@ -82,7 +82,7 @@ pi start_rpyc_service({self._port})
 
         self._initfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
         self._initfile.write(self._commands)
-        self._initfile.flush()
+        self._initfile.close()
         self._command = [
             "gdb",
             "-q",
@@ -92,6 +92,7 @@ pi start_rpyc_service({self._port})
             "--",
             str(self._target.absolute()),  # type: ignore pylint: disable=E1101
         ]
+        os.unlink(self._initfile.name)
         self._process = subprocess.Popen(self._command)
         assert self._process.pid > 0
         time.sleep(RPYC_SPAWN_TIME)
