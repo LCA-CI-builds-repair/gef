@@ -71,6 +71,12 @@ pi cov = coverage.Coverage(data_file="{self._coverage_file}", auto_data=True, br
 pi cov.start()
 """
 
+        # Add commands to set gef.disable_redirect_output to True
+        self._commands += """
+gef config gef.disable_redirect_output True
+"""
+
+        # The rest of the setup remains the same
         self._commands += f"""
 source {GEF_PATH}
 gef config gef.debug True
