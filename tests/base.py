@@ -73,7 +73,7 @@ pi cov.start()
 
         self._commands += f"""
 source {GEF_PATH}
-gef config gef.debug True
+gef config gef.debug False
 gef config gef.propagate_debug_exception True
 gef config gef.disable_color True
 source {RPYC_GEF_PATH}
