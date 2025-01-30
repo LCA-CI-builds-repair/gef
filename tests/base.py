@@ -31,7 +31,7 @@ class RemoteGefUnitTestGeneric(unittest.TestCase):
         attempt = RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS
         while True:
             try:
-                #
+                # Ensure previous coverage file is closed before starting a new one
                 # Port collisions can happen, allow a few retries
                 #
                 self._coverage_file = None
@@ -98,8 +98,6 @@ pi start_rpyc_service({self._port})
         self._conn = rpyc.connect(
             RPYC_HOST,
             self._port,
-        )
-
     def tearDown(self) -> None:
         if COVERAGE_DIR:
             self._gdb.execute("pi cov.stop()")
