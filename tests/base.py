@@ -21,7 +21,7 @@ RPYC_SPAWN_TIME = 1.0
 RPYC_MAX_REMOTE_CONNECTION_ATTEMPTS = 5
 
 
-class RemoteGefUnitTestGeneric(unittest.TestCase):
+class GefUnitTestGenericMixin:
     """
     The base class for GEF test cases. This will create the `rpyc` environment to programmatically interact with
     GDB and GEF in the test.
